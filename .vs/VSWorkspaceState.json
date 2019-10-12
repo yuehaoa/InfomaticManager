@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\build",
+    "\\config",
+    "\\src",
+    "\\src\\components",
+    "\\src\\router"
+  ],
+  "SelectedNode": "\\src\\components\\HelloWorld.vue",
+  "PreviewInSolutionExplorer": false
+}

@@ -1,0 +1,43 @@
+@import '~iview/src/styles/index.less';
+@import './theme.less';
+
+.searcher {
+  margin-top: 8px;
+}
+.add-btn-area {
+  width: 96px;
+  button {
+      width: 88px;
+  }
+}
+.data-table {
+  margin-bottom: 16px;
+}
+
+tr a.btn, tr span.btn {
+  margin-right: 10px;
+}
+
+a:not([class^=ivu-])[target=_blank]:after {
+    content: "\F3F2";
+    font-family: Ionicons;
+    color: #aaa;
+    margin-left: 3px;
+}
+
+a.disabled {
+    color: #c5c8ce;
+}
+
+@0px: 0px;
+.margin-loop(@list, @direction, @class, @i: 1, @val: extract(@list, @i)) when (length(@list)>=@i) {
+  .@{class}@{val} {
+    margin-@{direction}: @val + @0px;
+  }
+  .margin-loop(@list, @direction, @class, (@i+1));
+}
+@margin: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 30, 40, 48, 50, 75;
+.margin-loop(@margin, bottom, mb);
+.margin-loop(@margin, top, mt);
+.margin-loop(@margin, left, ml);
+.margin-loop(@margin, right, mr);
