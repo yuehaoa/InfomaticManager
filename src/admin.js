@@ -3,7 +3,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router/admin'
-import iView from 'iview'
+import iView from 'view-design'
 import {} from './init'
 import './assets/less/iview.less'
 import rView from './components'

@@ -50,6 +50,11 @@ const components = {
     layout: "admin",
     component: () => import(/* webpackChunkName: "cms" */"@p/Cores/CmsCategorise")
   },
+  Profile: {
+    path: "/manage/profile",
+    layout: "admin",
+    component: () => import(/* webpackChunkName: "security" */"@p/UCenter/Profile")
+  },
   ArticleList: {
     path: "/manage/cms/articlelist",
     layout: "admin",

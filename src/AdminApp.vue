@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import {Row, Tabs, TabPane, Card, Form, FormItem, Input} from 'iview'
+import {Row, Tabs, TabPane, Card, Form, FormItem, Input} from 'view-design'
 const axios = require("axios");
 const app = require("@/config");
 

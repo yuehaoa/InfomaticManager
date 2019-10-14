@@ -15,8 +15,8 @@
 </template>
 
 <script>
-import Emitter from 'iview/src/mixins/emitter'
-import { Tree, Select } from 'iview'
+import Emitter from 'view-design/src/mixins/emitter'
+import { Tree, Select } from 'view-design'
 const axios = require("axios")
 const app = require("@/config")
 let timer = null;

@@ -26,7 +26,42 @@
         <Layout>
             <Affix>
                 <Header :style="{padding: 0}" class="layout-header-bar">
-                    <Icon @click.native="collapsedSider" :class="rotateIcon" :style="{margin: '0 20px'}" type="md-menu" size="24"></Icon>
+                    <Row >
+                        <i-col span="20">
+                            <Icon @click.native="collapsedSider" :class="rotateIcon" :style="{margin: '0 20px'}" type="md-menu" size="24"></Icon>
+                        </i-col>
+                        <i-col span="1">
+                            <Dropdown trigger="click">
+                                <div style="cursor:pointer">
+                                    <Icon type="md-add" size="24"></Icon>
+                                    <Icon type="md-arrow-dropdown" />
+                                </div>
+                                <DropdownMenu slot="list"></DropdownMenu>
+                            </Dropdown>
+                        </i-col>
+                        <i-col span="1">
+                            <Icon :style="[{margin: '0 5px'},{cursor: 'pointer'}]" type="md-notifications-outline" size="24"></Icon>
+                        </i-col>
+                        <i-col span="1">
+                            <Dropdown trigger="click">
+                                <div style="cursor:pointer">
+                                    <Avatar :src="app.userInfo.avatar" />
+                                    <Icon type="md-arrow-dropdown" />
+                                </div>
+                                <DropdownMenu slot="list">
+                                    <DropdownItem>
+                                        <router-link :to="{name: 'Profile'}" tag="div">个人中心</router-link>
+                                    </DropdownItem>
+                                    <DropdownItem>
+                                        <router-link :to="{name: 'Profile'}" tag="div">账户设置</router-link>
+                                    </DropdownItem>
+                                    <DropdownItem @click.native="logout()">
+                                        <router-link :to="{name: 'Login'}" tag="div">退出</router-link>
+                                    </DropdownItem>
+                                </DropdownMenu>
+                            </Dropdown>
+                        </i-col>
+                    </Row>
                 </Header>
             </Affix>
             <Content :style="{margin: '20px'}" class="content">
@@ -38,7 +73,8 @@
 </template>
 
 <script>
-import { Layout, Sider, Menu, MenuItem, Header, Icon, Content, Affix, Submenu } from 'iview'
+import { Layout, Sider, Menu, MenuItem, Header, Icon, Content, Affix, Submenu } from 'view-design'
+import Axios from 'axios';
 const app = require('@/config')
 export default {
     components: { Layout, Sider, Menu, MenuItem, Header, Icon, Content, Affix, Submenu },
@@ -92,11 +128,25 @@ export default {
         },
         collapsedSider () {
             this.$refs.side1.toggleCollapse();
+        },
+        toProfile () {
+            this.$router.push({ name: "Profile" });
+        },
+        logout () {
+            Axios.post("/api/security/logout", {currentUserGuid: app.currentUserGuid}, msg => {
+                if (msg.success === true) {
+                    this.$Message.success("登出成功");
+                } else {
+                    this.$Message.warning("登出失败");
+                }
+                this.$router.push({ name: "Login" });
+            })
         }
     },
     data () {
         if (!app.toMenu) app.toMenu = this.collapseMenu;
         return {
+            app,
             isCollapsed: false,
             menus: app.menus,
             openMenus: [],
