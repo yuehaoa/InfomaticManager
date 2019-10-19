@@ -16,6 +16,9 @@
                 <p slot="title">实验室列表</p>
                 <i-button @click="toLabDetail()">添加实验室</i-button>
                 <i-table stripe :columns="columns" :data="labInfo">
+                    <template slot-scope="{row}" slot="roomType">
+                        {{enums.LabType[row.RoomType]}}
+                    </template>
                     <template slot-scope="{row}" slot="action">
                         <a class="btn" href="javascript:;" @click="toLabDetail(row.ID)">[转到]</a>
                         <a class="btn" href="javascript:;" @click="removeLab(row.ID)">[删除]</a>
@@ -25,7 +28,7 @@
             </i-card>
         </i-col>
         <i-modal v-model="modal.isShown" title="新建/修改楼栋" @on-ok="Submit" @on-cancel="Cancel">
-            <i-form ref="Form" :model="modal" >
+            <i-form ref="Form" :model="modal" :rules="rules">
                 <FormItem label="楼栋名"  prop="Name">
                     <i-input v-model="modal.Name" />
                 </FormItem>
@@ -46,8 +49,9 @@
     </i-row>
 </template>
 <script>
-//  const regex = require("@/regex.js");
+const regex = require("@/regex.js");
 let app = require("@/config");
+let enums = require("@/config/enums");
 //  var _ = require("lodash");
 const axios = require("axios");
 export default {
@@ -97,7 +101,6 @@ export default {
     },
     Cancel () {
         this.$Message.info('Clicked cancel');
-        this.modal.isShown = false;
     },
     pageChage (p) {
         this.page = p;
@@ -114,7 +117,7 @@ export default {
         axios.post("/api/building/RemoveRoom", { id }, msg => {});
     },
     toLabDetail (ID) {
-        ID = ID || '00000000-0000-0000-0000-000000000000';
+        ID = ID || '';
         this.$router.push({name: 'LabManager', params: { ID }});
     }
   },
@@ -141,6 +144,7 @@ export default {
       page: 1,
       pageSize: 10,
       labNum: 0,
+      enums,
       columns: [
         {
           title: "楼栋名称",
@@ -164,14 +168,36 @@ export default {
         },
         {
           title: "实验室类型",
-          key: "RoomType"
+          slot: "roomType"
         },
         {
           title: "操作",
           slot: "action"
         }
       ],
-      data: []
+      data: [],
+      rules: {
+            "Name": [
+                {
+                    required: true,
+                    message: "必须输入楼栋名",
+                    trigger: "blur"
+                }
+            ],
+            "Telephone": [
+                {
+                    required: false,
+                    message: "必须输入楼栋名",
+                    trigger: "blur"
+                },
+                {
+                    type: "string",
+                    pattern: regex.mobile,
+                    message: "电话格式不正确",
+                    trigger: "blur"
+                }
+            ]
+        }
     };
   }
 };
