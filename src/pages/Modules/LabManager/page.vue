@@ -16,8 +16,12 @@
                     </i-col>
                     <i-col span="4">
                         <i-form-item label="所在楼名称" prop="BuildingId">
-                            <i-select v-model="labInfo.BuildingId" >
-                                <i-option v-for="(item,index) in buildingInfo" :value="item.ID" :key="index">{{ item.Name }}</i-option>
+                            <i-select v-model="labInfo.BuildingId">
+                                <i-option
+                                    v-for="(item,index) in buildingInfo"
+                                    :value="item.ID"
+                                    :key="index"
+                                >{{ item.Name }}</i-option>
                             </i-select>
                         </i-form-item>
                     </i-col>
@@ -75,7 +79,7 @@
 <script>
 const regex = require("@/regex.js");
 let app = require("@/config");
-//  var _ = require("lodash");
+//    var _ = require("lodash");
 const axios = require("axios");
 export default {
     mounted () {
@@ -92,7 +96,7 @@ export default {
         },
         GetLabData (ID) {
             if (!ID) return;
-            axios.post("/api/building/GetRoom", {ID}, msg => {
+            axios.post("/api/building/GetRoom", { ID }, msg => {
                 this.labInfo = msg.data;
                 this.data = msg.data;
             });
@@ -109,9 +113,9 @@ export default {
             });
         },
         removeLab (id) {
-                axios.post("/api/building/RemoveRoom", { id }, msg => {
+            axios.post("/api/building/RemoveRoom", { id }, msg => {
                 console.log(msg);
-                });
+            });
         }
     },
     data () {
@@ -167,28 +171,28 @@ export default {
             ],
             data: [],
             rules: {
-                "Name": [
+                Name: [
                     {
-                    required: true,
-                    message: "必须输入楼栋名称",
-                    trigger: "blur"
+                        required: true,
+                        message: "必须输入楼栋名称",
+                        trigger: "blur"
                     }
                 ],
-                "BuildingId": [
+                BuildingId: [
                     {
                         required: true,
                         message: "必须输入楼栋ID",
                         trigger: "blur"
                     }
                 ],
-                "Administrator": [
+                Administrator: [
                     {
                         required: true,
                         message: "必须输入实验室联系人",
                         trigger: "blur"
                     }
                 ],
-                "AdminTelephone": [
+                AdminTelephone: [
                     {
                         required: true,
                         message: "必须输入实验室联系人电话",
@@ -201,14 +205,14 @@ export default {
                         trigger: "blur"
                     }
                 ],
-                "SecurityOfficer": [
+                SecurityOfficer: [
                     {
                         required: true,
                         message: "必须输入安全负责人姓名",
                         trigger: "blur"
                     }
                 ],
-                "SOTelephone": [
+                SOTelephone: [
                     {
                         required: true,
                         message: "必须输入安全负责人电话",
@@ -224,7 +228,7 @@ export default {
             }
         };
     }
-}
+};
 </script>
 <style lang="less">
 </style>
