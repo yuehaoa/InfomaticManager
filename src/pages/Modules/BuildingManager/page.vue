@@ -117,7 +117,6 @@ export default {
         axios.post("/api/building/RemoveRoom", { id }, msg => {});
     },
     toLabDetail (ID) {
-        ID = ID || '';
         this.$router.push({name: 'LabManager', params: { ID }});
     }
   },

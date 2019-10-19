@@ -2,7 +2,7 @@
     <div id="lab-manager">
         <i-card>
             <p slot="title">实验室信息</p>
-            <i-form :model="labInfo" :rules="rules">
+            <i-form :model="labInfo" :rules="rules" ref="form">
                 <i-row type="flex" justify="space-between" class="code-row-bg">
                     <i-col span="4">
                         <i-form-item label="实验室名称" prop="Name">
@@ -60,11 +60,11 @@
                     </i-col>
                 </i-row>
                 <i-form-item>
-                    <i-button type="primary" @click="handleSubmit('form')">修改</i-button>
+                    <i-button type="primary" @click="handleSubmit('form')">{{labInfo.ID?'修改':'新建'}}</i-button>
                 </i-form-item>
             </i-form>
         </i-card>
-        <i-table stripe :columns="columns">
+        <i-table stripe :columns="columns" v-if="labInfo.ID">
             <template slot-scope="{row}" slot="action">
                 <a class="btn" href="javascript:;">[转到]</a>
                 <a class="btn" href="javascript:;" @click="removeLab(row.ID)">[删除]</a>
@@ -79,8 +79,7 @@ let app = require("@/config");
 const axios = require("axios");
 export default {
     mounted () {
-        this.labInfo.ID = this.$route.params.ID || '';
-        if(true)
+        this.labInfo.ID = this.$route.params.ID;
         this.GetLabData(this.labInfo.ID);
         this.GetBuildingData();
         app.title = "楼栋管理";
@@ -92,12 +91,11 @@ export default {
             });
         },
         GetLabData (ID) {
-            if (ID !== '00000000-0000-0000-0000-000000000000') {
-                    axios.post("/api/building/GetRoom", {ID}, msg => {
-                    this.labInfo = msg.data;
-                    this.data = msg.data;
-                });
-            }
+            if (!ID) return;
+            axios.post("/api/building/GetRoom", {ID}, msg => {
+                this.labInfo = msg.data;
+                this.data = msg.data;
+            });
         },
         handleSubmit (name) {
             let form = this.$refs[name];
@@ -179,47 +177,47 @@ export default {
                 "BuildingId": [
                     {
                         required: true,
-                        massage: "必须输入楼栋ID",
+                        message: "必须输入楼栋ID",
                         trigger: "blur"
                     }
                 ],
                 "Administrator": [
                     {
                         required: true,
-                        massage: "必须输入实验室联系人",
+                        message: "必须输入实验室联系人",
                         trigger: "blur"
                     }
                 ],
                 "AdminTelephone": [
                     {
                         required: true,
-                        massage: "必须输入实验室联系人电话",
+                        message: "必须输入实验室联系人电话",
                         trigger: "blur"
                     },
                     {
                         type: "string",
                         pattern: regex.mobile,
-                        massage: "联系人电话格式不正确",
+                        message: "联系人电话格式不正确",
                         trigger: "blur"
                     }
                 ],
                 "SecurityOfficer": [
                     {
                         required: true,
-                        massage: "必须输入实验室安全负责人姓名",
+                        message: "必须输入安全负责人姓名",
                         trigger: "blur"
                     }
                 ],
                 "SOTelephone": [
                     {
                         required: true,
-                        massage: "必须输入实验室安全负责人电话",
+                        message: "必须输入安全负责人电话",
                         trigger: "blur"
                     },
                     {
                         type: "string",
                         pattern: regex.mobile,
-                        massage: "安全负责人电话格式不正确",
+                        message: "安全负责人电话格式不正确",
                         trigger: "blur"
                     }
                 ]
