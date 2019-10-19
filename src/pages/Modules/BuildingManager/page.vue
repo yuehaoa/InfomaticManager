@@ -2,26 +2,28 @@
     <i-row id="building-manager" :gutter="16">
         <i-col span="5" class="tree">
             <div class="user-search">
-                <i-input prefix="ios-search" placeholder="搜索成员，部门" />
+                <i-input prefix="ios-search" placeholder="搜索楼栋" />
                 <div class="more-btn" @click="modifyBuilding()">
                     <i-tooltip content="添加部门" placement="right">
                         <Icon type="md-add" />
                     </i-tooltip>
                 </div>
             </div>
-            <i-tree :data="buildingInfo" :render="renderContent" class="org-tree"></i-tree>
+            <Tree :data="buildingInfo" class="org-tree" :render="renderContent"></Tree>
         </i-col>
         <i-col span="19">
             <i-card class="panel">
-                <p slot="title">实验室列表</p>
-                <i-button @click="toLabDetail()">添加实验室</i-button>
+                <p slot="title"> {{dataName}} 实验室列表</p>
+                <div style="margin-bottom:10px;">
+                    <i-button @click="toLabDetail()">添加实验室</i-button>
+                </div>
                 <i-table stripe :columns="columns" :data="labInfo">
                     <template slot-scope="{row}" slot="action">
                         <a class="btn" href="javascript:;" @click="toLabDetail(row.ID)">[转到]</a>
-                        <a class="btn" href="javascript:;" @click="removeLab(row.ID)">[删除]</a>
+                        <a class="btn" href="javascript:;" @click="RemoveOrNotLab(row.ID)">[删除]</a>
                     </template>
                 </i-table>
-                <i-page :total="labNum" :current.sync="page" :page-size="pageSize" @on-change="pageChage" @on-page-size-change="pageSizeChange" show-elevator show-size show-total/>
+                <i-page :total="labNum" :current.sync="page" :page-size="pageSize" @on-change="pageChage" @on-page-size-change="pageSizeChange" show-elevator show-size show-total style="margin-top:10px;"/>
             </i-card>
         </i-col>
         <i-modal v-model="modal.isShown" title="新建/修改楼栋" @on-ok="Submit" @on-cancel="Cancel">
@@ -42,6 +44,12 @@
                     <i-input v-model="modal.DisplayOrder" />
                 </FormItem>
             </i-form>
+        </i-modal>
+        <i-modal  v-model="modalforDeltBuilding.isShown" @on-ok="removeBuilding(data.ID)" @on-cancel="notRemoveBuilding" width="35px">
+            是否删除该楼栋
+        </i-modal>
+        <i-modal  v-model="modalforDeltLab.isShown" @on-ok="removeLab()" @on-cancel="notRemoveLab" width="35px">
+            是否删除该实验室
         </i-modal>
     </i-row>
 </template>
@@ -72,12 +80,14 @@ export default {
             on: {
                 click () {
                     THIS.GetLabData(data.ID);
+                    THIS.renderClickData = data.ID; // *这是用于删除实验室的
+                    THIS.dataName = data.Name;
                 }
             }
         }, [
             h("span", { style: {width: '100%', marginRight: "8px"} }, data.Name),
-            h("Icon", { props: { type: "md-create" }, on: { click: () => THIS.modifyBuilding(data) } }),
-            h("Icon", { props: { type: "md-close" }, on: { click: () => THIS.removeBuilding(data.ID) } })
+            h("Icon", { style: {float: 'right', marginTop: "5px"}, props: { type: "md-create" }, on: { click: () => THIS.modifyBuilding(data) } }),
+            h("Icon", { style: {float: 'right', marginTop: "5px"}, props: { type: "md-close" }, on: { click: () => THIS.RemoveOrNotBuilding(data.ID) } })
         ]);
     },
     GetLabData (pid) {
@@ -107,11 +117,31 @@ export default {
         this.pageSize = pz;
         this.getLabs();
     },
-    removeBuilding (id) {
-        axios.post("/api/building/RemoveBuilding", { id }, msg => {});
+    RemoveOrNotBuilding (id) {
+        this.dataID = id;
+        this.modalforDeltBuilding.isShown = true;
     },
-    removeLab (id) {
+    RemoveOrNotLab (rowid) {
+        this.modalforDeltLab.isShown = true;
+        this.rowID = rowid;
+    },
+    notRemoveBuilding () {
+        this.$Message.info('Clicked cancel');
+        this.modalforDeltBuilding.isShown = false;
+    },
+    notRemoveLab () {
+         this.$Message.info('Clicked cancel');
+        this.modalforDeltLab.isShown = false;
+    },
+    removeBuilding () {
+        let id = this.dataID;
+        axios.post("/api/building/RemoveBuilding", { id }, msg => {});
+        this.GetBuildingData(this.renderClickData);
+    },
+    removeLab () {
+        let id = this.rowID;
         axios.post("/api/building/RemoveRoom", { id }, msg => {});
+        this.GetLabData(this.renderClickData);
     },
     toLabDetail (ID) {
         ID = ID || '00000000-0000-0000-0000-000000000000';
@@ -135,11 +165,17 @@ export default {
       labInfo: [],
       buildingInfo: [],
       modal: emptyModal(),
+      modalforDeltBuilding: {isShown: false},
+      modalforDeltLab: {isShown: false},
+      rowID: "",
+      dataID: "",
       emptyModal,
+      renderClickData: "",
       buildingTree: [],
       seatInfo: {},
       page: 1,
       pageSize: 10,
+      dataName: "",
       labNum: 0,
       columns: [
         {
@@ -177,4 +213,27 @@ export default {
 };
 </script>
 <style lang="less">
+.tree {
+        background: #808695;
+        color: #fff;
+        @import "../../../assets/less/orgTree.less";
+        }
+        .user-search {
+            padding-top: 5px;
+            padding-bottom:5px;
+            border-bottom: 1px solid #E4E6E9;
+            position: relative;
+            input{
+                width:130px;
+            }
+            .more-btn {
+                padding-left:5px;
+                position: absolute;
+                right:0px;
+                top:13px;
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
+            }
+        }
 </style>
