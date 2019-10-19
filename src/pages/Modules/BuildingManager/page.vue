@@ -3,7 +3,7 @@
         <i-col span="5" class="tree">
             <div class="user-search">
                 <i-input prefix="ios-search" placeholder="搜索成员，部门" />
-                <div class="more-btn">
+                <div class="more-btn" @click="modifyBuilding()">
                     <i-tooltip content="添加部门" placement="right">
                         <Icon type="md-add" />
                     </i-tooltip>
@@ -14,13 +14,14 @@
         <i-col span="19">
             <i-card class="panel">
                 <p slot="title">实验室列表</p>
-                <i-button >添加实验室</i-button>
+                <i-button @click="toLabDetail()">添加实验室</i-button>
                 <i-table stripe :columns="columns" :data="labInfo">
                     <template slot-scope="{row}" slot="action">
                         <a class="btn" href="javascript:;" @click="toLabDetail(row.ID)">[转到]</a>
                         <a class="btn" href="javascript:;" @click="removeLab(row.ID)">[删除]</a>
                     </template>
                 </i-table>
+                <i-page :total="labNum" :current.sync="page" :page-size="pageSize" @on-change="pageChage" @on-page-size-change="pageSizeChange" show-elevator show-size show-total/>
             </i-card>
         </i-col>
         <i-modal v-model="modal.isShown" title="新建/修改楼栋" @on-ok="Submit" @on-cancel="Cancel">
@@ -60,6 +61,8 @@ export default {
       axios.post("/api/building/GetBuildings", {}, msg => {
         this.buildingInfo = msg.data;
         console.log(this.buildingInfo);
+        let final = {};
+        msg.data.map(e => final[e.ID] = e.Name);
       });
     },
     renderContent (h, { root, node, data }) {
@@ -75,15 +78,18 @@ export default {
             h("span", { style: {width: '100%', marginRight: "8px"} }, data.Name),
             h("Icon", { props: { type: "md-create" }, on: { click: () => THIS.modifyBuilding(data) } }),
             h("Icon", { props: { type: "md-close" }, on: { click: () => THIS.removeBuilding(data.ID) } })
-            ]);
+        ]);
     },
     GetLabData (pid) {
-        axios.post("/api/building/GetRooms", {pid}, msg => {
-        this.labInfo = msg.data;
-      });
+        let page = this.page;
+        let pageSize = this.pageSize;
+        axios.post("/api/building/GetRooms", {pid, page, pageSize}, msg => {
+            this.labInfo = msg.data;
+            this.labNum = msg.totalRow;
+        });
     },
     modifyBuilding (data) {
-        this.modal = data;
+        this.modal = data || this.emptyModal();
         this.modal.isShown = true;
     },
     Submit () {
@@ -93,6 +99,14 @@ export default {
         this.$Message.info('Clicked cancel');
         this.modal.isShown = false;
     },
+    pageChage (p) {
+        this.page = p;
+        this.getLabs();
+    },
+    pageSizeChange (pz) {
+        this.pageSize = pz;
+        this.getLabs();
+    },
     removeBuilding (id) {
         axios.post("/api/building/RemoveBuilding", { id }, msg => {});
     },
@@ -100,33 +114,37 @@ export default {
         axios.post("/api/building/RemoveRoom", { id }, msg => {});
     },
     toLabDetail (ID) {
+        ID = ID || '00000000-0000-0000-0000-000000000000';
         this.$router.push({name: 'LabManager', params: { ID }});
     }
   },
   data () {
+      let emptyModal = () => {
+          return {
+            isShown: false,
+            ID: '',
+            Name: '',
+            SubCampus: '',
+            Administrator: '',
+            Telephone: '',
+            DisplayOrder: '',
+            CreatedOn: ''
+      };
+      };
     return {
       labInfo: [],
       buildingInfo: [],
-      modal: {
-          isShown: false,
-          ID: '',
-          Name: '',
-          SubCampus: '',
-          Administrator: '',
-          Telephone: '',
-          DisplayOrder: '',
-          CreatedOn: ''
-      },
+      modal: emptyModal(),
+      emptyModal,
       buildingTree: [],
       seatInfo: {},
+      page: 1,
+      pageSize: 10,
+      labNum: 0,
       columns: [
         {
           title: "楼栋名称",
           key: "Name"
-        },
-        {
-          title: "所在楼栋ID（暂时）",
-          key: "BuildingId"
         },
         {
           title: "实验室联系人",
