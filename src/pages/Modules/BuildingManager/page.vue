@@ -37,7 +37,7 @@
                 />
             </i-card>
         </i-col>
-        <i-modal v-model="modal.isShown" title="新建/修改楼栋" @on-ok="submit()" @on-cancel="cancel()">
+        <i-modal v-model="modalShow" title="新建/修改楼栋" @on-ok="submit()" @on-cancel="cancel()">
             <i-form ref="Form" :model="modal" :rules="rules">
                 <FormItem label="楼栋名" prop="Name">
                     <i-input v-model="modal.Name" />
@@ -97,12 +97,12 @@ export default {
                         data.Name
                     ),
                     h("Icon", {
-                        style: { float: "right", marginTop: "5px" },
+                        style: { float: "right", marginTop: "7px" },
                         props: { type: "md-close" },
                         on: { click: () => THIS.removeBuilding(data.ID) }
                     }),
                     h("Icon", {
-                        style: { float: "right", marginTop: "5px" },
+                        style: { float: "right", marginTop: "7px" },
                         props: { type: "md-create" },
                         on: { click: () => THIS.modifyBuilding(data) }
                     })
@@ -119,17 +119,20 @@ export default {
         },
         modifyBuilding (data) {
             this.modal = data || this.emptyModal();
-            this.modal.isShown = true;
+            this.modalShow = true;
         },
         submit () {
             axios.post("/api/building/SaveBuilding", { ...this.modal }, msg => {
                 if (msg.success) {
                     this.$Message.success("楼栋保存成功");
+                    this.GetBuildingData();
+                    // this.modalShow = false;
                 }
             });
         },
         cancel () {
             this.$Message.info("Clicked cancel");
+            this.modalShow = false;
         },
         pageChage (p) {
             this.page = p;
@@ -167,9 +170,8 @@ export default {
         }
     },
     data () {
-        let emptyModal = () => {
+        var emptyModal = () => {
             return {
-                isShown: false,
                 ID: "",
                 Name: "",
                 SubCampus: "",
@@ -183,6 +185,7 @@ export default {
             labInfo: [],
             buildingInfo: [],
             modal: emptyModal(),
+            modalShow: false,
             emptyModal,
             renderClickData: "",
             buildingTree: [],
@@ -261,10 +264,10 @@ export default {
     border-bottom: 1px solid #e4e6e9;
     position: relative;
     input {
-        width: 130px;
+        width: 220px;
     }
     .more-btn {
-        padding-left: 5px;
+        padding-left: 3px;
         position: absolute;
         right: 0px;
         top: 13px;
