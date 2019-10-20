@@ -13,227 +13,264 @@
         </i-col>
         <i-col span="19">
             <i-card class="panel">
-                <p slot="title"> {{dataName}} 实验室列表</p>
+                <p slot="title">{{dataName}} 实验室列表</p>
                 <div style="margin-bottom:10px;">
                     <i-button @click="toLabDetail()">添加实验室</i-button>
                 </div>
                 <i-table stripe :columns="columns" :data="labInfo">
+                    <template slot-scope="{row}" slot="roomType">{{enums.LabType[row.RoomType]}}</template>
                     <template slot-scope="{row}" slot="action">
                         <a class="btn" href="javascript:;" @click="toLabDetail(row.ID)">[转到]</a>
-                        <a class="btn" href="javascript:;" @click="RemoveOrNotLab(row.ID)">[删除]</a>
+                        <a class="btn" href="javascript:;" @click="removeLab(row.ID)">[删除]</a>
                     </template>
                 </i-table>
-                <i-page :total="labNum" :current.sync="page" :page-size="pageSize" @on-change="pageChage" @on-page-size-change="pageSizeChange" show-elevator show-size show-total style="margin-top:10px;"/>
+                <i-page
+                    :total="labNum"
+                    :current.sync="page"
+                    :page-size="pageSize"
+                    @on-change="pageChage"
+                    @on-page-size-change="pageSizeChange"
+                    show-elevator
+                    show-size
+                    show-total
+                    style="margin-top:10px;"
+                />
             </i-card>
         </i-col>
-        <i-modal v-model="modal.isShown" title="新建/修改楼栋" @on-ok="Submit" @on-cancel="Cancel">
-            <i-form ref="Form" :model="modal" >
-                <FormItem label="楼栋名"  prop="Name">
+        <i-modal v-model="modal.isShown" title="新建/修改楼栋" @on-ok="submit()" @on-cancel="cancel()">
+            <i-form ref="Form" :model="modal" :rules="rules">
+                <FormItem label="楼栋名" prop="Name">
                     <i-input v-model="modal.Name" />
                 </FormItem>
-                <FormItem label="所属校区"  prop="SubCampus">
+                <FormItem label="所属校区" prop="SubCampus">
                     <i-input v-model="modal.SubCampus" />
                 </FormItem>
-                <FormItem label="楼栋管理员"  prop="Administrator">
+                <FormItem label="楼栋管理员" prop="Administrator">
                     <i-input v-model="modal.Administrator" />
                 </FormItem>
-                <FormItem label="联系电话"  prop="Telephone">
+                <FormItem label="联系电话" prop="Telephone">
                     <i-input v-model="modal.Telephone" />
                 </FormItem>
-                <FormItem label="排列顺序"  prop="DisplayOrder">
+                <FormItem label="排列顺序" prop="DisplayOrder">
                     <i-input v-model="modal.DisplayOrder" />
                 </FormItem>
             </i-form>
         </i-modal>
-        <i-modal  v-model="modalforDeltBuilding.isShown" @on-ok="removeBuilding(data.ID)" @on-cancel="notRemoveBuilding" width="35px">
-            是否删除该楼栋
-        </i-modal>
-        <i-modal  v-model="modalforDeltLab.isShown" @on-ok="removeLab()" @on-cancel="notRemoveLab" width="35px">
-            是否删除该实验室
-        </i-modal>
     </i-row>
 </template>
 <script>
-//  const regex = require("@/regex.js");
+const regex = require("@/regex.js");
 let app = require("@/config");
-//  var _ = require("lodash");
+let enums = require("@/config/enums");
+//    var _ = require("lodash");
 const axios = require("axios");
 export default {
-  mounted () {
-    this.GetLabData();
-    this.GetBuildingData();
-    app.title = "楼栋管理";
-  },
-  methods: {
-    GetBuildingData () {
-      axios.post("/api/building/GetBuildings", {}, msg => {
-        this.buildingInfo = msg.data;
-        console.log(this.buildingInfo);
-        let final = {};
-        msg.data.map(e => final[e.ID] = e.Name);
-      });
+    mounted () {
+        this.GetLabData();
+        this.GetBuildingData();
+        app.title = "楼栋管理";
     },
-    renderContent (h, { root, node, data }) {
-        let THIS = this;
-        return h("span", {
-            class: {"ivu-tree-title": true},
-            on: {
-                click () {
-                    THIS.GetLabData(data.ID);
-                    THIS.renderClickData = data.ID; // *这是用于删除实验室的
-                    THIS.dataName = data.Name;
+    methods: {
+        GetBuildingData () {
+            axios.post("/api/building/GetBuildings", {}, msg => {
+                this.buildingInfo = msg.data;
+                let final = {};
+                msg.data.map(e => (final[e.ID] = e.Name));
+            });
+        },
+        renderContent (h, { root, node, data }) {
+            let THIS = this;
+            return h(
+                "span",
+                {
+                    class: { "ivu-tree-title": true },
+                    on: {
+                        click () {
+                            THIS.GetLabData(data.ID);
+                        }
+                    }
+                },
+                [
+                    h(
+                        "span",
+                        { style: { width: "100%", marginRight: "8px" } },
+                        data.Name
+                    ),
+                    h("Icon", {
+                        style: { float: "right", marginTop: "5px" },
+                        props: { type: "md-close" },
+                        on: { click: () => THIS.removeBuilding(data.ID) }
+                    }),
+                    h("Icon", {
+                        style: { float: "right", marginTop: "5px" },
+                        props: { type: "md-create" },
+                        on: { click: () => THIS.modifyBuilding(data) }
+                    })
+                ]
+            );
+        },
+        GetLabData (pid) {
+            let page = this.page;
+            let pageSize = this.pageSize;
+            axios.post("/api/building/GetRooms", { pid, page, pageSize }, msg => {
+                this.labInfo = msg.data;
+                this.labNum = msg.totalRow;
+            });
+        },
+        modifyBuilding (data) {
+            this.modal = data || this.emptyModal();
+            this.modal.isShown = true;
+        },
+        submit () {
+            axios.post("/api/building/SaveBuilding", { ...this.modal }, msg => {
+                if (msg.success) {
+                    this.$Message.success("楼栋保存成功");
                 }
-            }
-        }, [
-            h("span", { style: {width: '100%', marginRight: "8px"} }, data.Name),
-            h("Icon", { style: {float: 'right', marginTop: "5px"}, props: { type: "md-create" }, on: { click: () => THIS.modifyBuilding(data) } }),
-            h("Icon", { style: {float: 'right', marginTop: "5px"}, props: { type: "md-close" }, on: { click: () => THIS.RemoveOrNotBuilding(data.ID) } })
-        ]);
-    },
-    GetLabData (pid) {
-        let page = this.page;
-        let pageSize = this.pageSize;
-        axios.post("/api/building/GetRooms", {pid, page, pageSize}, msg => {
-            this.labInfo = msg.data;
-            this.labNum = msg.totalRow;
-        });
-    },
-    modifyBuilding (data) {
-        this.modal = data || this.emptyModal();
-        this.modal.isShown = true;
-    },
-    Submit () {
-        axios.post("/api/building/SaveBuilding", {...this.modal}, msg => {});
-    },
-    Cancel () {
-        this.$Message.info('Clicked cancel');
-        this.modal.isShown = false;
-    },
-    pageChage (p) {
-        this.page = p;
-        this.getLabs();
-    },
-    pageSizeChange (pz) {
-        this.pageSize = pz;
-        this.getLabs();
-    },
-    RemoveOrNotBuilding (id) {
-        this.dataID = id;
-        this.modalforDeltBuilding.isShown = true;
-    },
-    RemoveOrNotLab (rowid) {
-        this.modalforDeltLab.isShown = true;
-        this.rowID = rowid;
-    },
-    notRemoveBuilding () {
-        this.$Message.info('Clicked cancel');
-        this.modalforDeltBuilding.isShown = false;
-    },
-    notRemoveLab () {
-         this.$Message.info('Clicked cancel');
-        this.modalforDeltLab.isShown = false;
-    },
-    removeBuilding () {
-        let id = this.dataID;
-        axios.post("/api/building/RemoveBuilding", { id }, msg => {});
-        this.GetBuildingData(this.renderClickData);
-    },
-    removeLab () {
-        let id = this.rowID;
-        axios.post("/api/building/RemoveRoom", { id }, msg => {});
-        this.GetLabData(this.renderClickData);
-    },
-    toLabDetail (ID) {
-        ID = ID || '00000000-0000-0000-0000-000000000000';
-        this.$router.push({name: 'LabManager', params: { ID }});
-    }
-  },
-  data () {
-      let emptyModal = () => {
-          return {
-            isShown: false,
-            ID: '',
-            Name: '',
-            SubCampus: '',
-            Administrator: '',
-            Telephone: '',
-            DisplayOrder: '',
-            CreatedOn: ''
-      };
-      };
-    return {
-      labInfo: [],
-      buildingInfo: [],
-      modal: emptyModal(),
-      modalforDeltBuilding: {isShown: false},
-      modalforDeltLab: {isShown: false},
-      rowID: "",
-      dataID: "",
-      emptyModal,
-      renderClickData: "",
-      buildingTree: [],
-      seatInfo: {},
-      page: 1,
-      pageSize: 10,
-      dataName: "",
-      labNum: 0,
-      columns: [
-        {
-          title: "楼栋名称",
-          key: "Name"
+            });
         },
-        {
-          title: "实验室联系人",
-          key: "Administrator"
+        cancel () {
+            this.$Message.info("Clicked cancel");
         },
-        {
-          title: "联系人电话",
-          key: "AdminTelephone"
+        pageChage (p) {
+            this.page = p;
+            this.getLabs();
         },
-        {
-          title: "安全负责人",
-          key: "SecurityOfficer"
+        pageSizeChange (pz) {
+            this.pageSize = pz;
+            this.getLabs();
         },
-        {
-          title: "安全负责人电话",
-          key: "SOTelephone"
+        removeLab (id) {
+            this.$Modal.confirm({
+                title: "确认删除该实验室？",
+                onOk: () => {
+                    axios.post("/api/building/RemoveRoom", { id }, msg => {
+                        if (msg.success) {
+                            this.$Message.success("实验室删除成功");
+                        }
+                        this.GetLabData();
+                    });
+                }
+            });
         },
-        {
-          title: "实验室类型",
-          key: "RoomType"
+        removeBuilding (id) {
+            this.$Modal.confirm({
+                title: "确认删除该楼栋？",
+                onOk: () => {
+                    axios.post("/api/building/RemoveBuilding", { id }, msg => {
+                        this.GetBuildingData();
+                    });
+                }
+            });
         },
-        {
-          title: "操作",
-          slot: "action"
+        toLabDetail (ID) {
+            this.$router.push({ name: "LabManager", params: { ID } });
         }
-      ],
-      data: []
-    };
-  }
+    },
+    data () {
+        let emptyModal = () => {
+            return {
+                isShown: false,
+                ID: "",
+                Name: "",
+                SubCampus: "",
+                Administrator: "",
+                Telephone: "",
+                DisplayOrder: "",
+                CreatedOn: ""
+            };
+        };
+        return {
+            labInfo: [],
+            buildingInfo: [],
+            modal: emptyModal(),
+            emptyModal,
+            renderClickData: "",
+            buildingTree: [],
+            seatInfo: {},
+            page: 1,
+            pageSize: 10,
+            dataName: "",
+            labNum: 0,
+            enums,
+            columns: [
+                {
+                    title: "楼栋名称",
+                    key: "Name"
+                },
+                {
+                    title: "实验室联系人",
+                    key: "Administrator"
+                },
+                {
+                    title: "联系人电话",
+                    key: "AdminTelephone"
+                },
+                {
+                    title: "安全负责人",
+                    key: "SecurityOfficer"
+                },
+                {
+                    title: "安全负责人电话",
+                    key: "SOTelephone"
+                },
+                {
+                    title: "实验室类型",
+                    slot: "roomType"
+                },
+                {
+                    title: "操作",
+                    slot: "action"
+                }
+            ],
+            data: [],
+            rules: {
+                Name: [
+                    {
+                        required: true,
+                        message: "必须输入楼栋名",
+                        trigger: "blur"
+                    }
+                ],
+                Telephone: [
+                    {
+                        required: false,
+                        message: "必须输入楼栋名",
+                        trigger: "blur"
+                    },
+                    {
+                        type: "string",
+                        pattern: regex.mobile,
+                        message: "电话格式不正确",
+                        trigger: "blur"
+                    }
+                ]
+            }
+        };
+    }
 };
 </script>
 <style lang="less">
 .tree {
-        background: #808695;
-        color: #fff;
-        @import "../../../assets/less/orgTree.less";
-        }
-        .user-search {
-            padding-top: 5px;
-            padding-bottom:5px;
-            border-bottom: 1px solid #E4E6E9;
-            position: relative;
-            input{
-                width:130px;
-            }
-            .more-btn {
-                padding-left:5px;
-                position: absolute;
-                right:0px;
-                top:13px;
-                width: 20px;
-                height: 20px;
-                cursor: pointer;
-            }
-        }
+    background: #808695;
+    color: #fff;
+    @import "../../../assets/less/orgTree.less";
+}
+.user-search {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #e4e6e9;
+    position: relative;
+    input {
+        width: 130px;
+    }
+    .more-btn {
+        padding-left: 5px;
+        position: absolute;
+        right: 0px;
+        top: 13px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+}
 </style>
