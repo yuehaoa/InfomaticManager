@@ -62,6 +62,17 @@
 const regex = require("@/regex.js");
 let app = require("@/config");
 let enums = require("@/config/enums");
+let emptyModal = () => {
+            return {
+                ID: "",
+                Name: "",
+                SubCampus: "",
+                Administrator: "",
+                Telephone: "",
+                DisplayOrder: "",
+                CreatedOn: ""
+            };
+        };
 //    var _ = require("lodash");
 const axios = require("axios");
 export default {
@@ -118,7 +129,7 @@ export default {
             });
         },
         modifyBuilding (data) {
-            this.modal = data || this.emptyModal();
+            this.modal = data || emptyModal();
             this.modalShow = true;
         },
         submit () {
@@ -126,13 +137,11 @@ export default {
                 if (msg.success) {
                     this.$Message.success("楼栋保存成功");
                     this.GetBuildingData();
-                    // this.modalShow = false;
                 }
             });
         },
         cancel () {
             this.$Message.info("Clicked cancel");
-            this.modalShow = false;
         },
         pageChage (p) {
             this.page = p;
@@ -170,26 +179,11 @@ export default {
         }
     },
     data () {
-        var emptyModal = () => {
-            return {
-                ID: "",
-                Name: "",
-                SubCampus: "",
-                Administrator: "",
-                Telephone: "",
-                DisplayOrder: "",
-                CreatedOn: ""
-            };
-        };
         return {
             labInfo: [],
             buildingInfo: [],
             modal: emptyModal(),
             modalShow: false,
-            emptyModal,
-            renderClickData: "",
-            buildingTree: [],
-            seatInfo: {},
             page: 1,
             pageSize: 10,
             dataName: "",
