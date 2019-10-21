@@ -9,7 +9,7 @@
                     </i-tooltip>
                 </div>
             </div>
-            <Tree :data="buildingInfo" class="org-trerenderContente" :render="renderContent"></Tree>
+            <Tree :data="buildingInfo" class="org-tree" :render="renderContent"></Tree>
         </i-col>
         <i-col span="19">
             <i-card class="panel">
