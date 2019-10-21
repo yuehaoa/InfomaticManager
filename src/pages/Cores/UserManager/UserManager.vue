@@ -157,6 +157,7 @@ export default {
                 }
                 this.emptyText = "数据加载中...";
                 this.orgTree = msg.data;
+                console.log(this.orgTree);
                 if (!this.orgTree.length) this.emptyText = "暂无数据";
             })
         },
