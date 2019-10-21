@@ -105,10 +105,14 @@ export default {
             let form = this.$refs[name];
             form.validate(err => {
                 if (!err) {
+                    this.$Modal.error({
+                        title: "表单有误",
+                        content: "请正确输入表单"
+                    });
                     return;
                 }
                 axios.post("/api/building/SaveRoom", { ...this.labInfo }, msg => {
-                    console.log(msg);
+                    this.$Message.success("实验室保存成功");
                 });
             });
         },

@@ -9,7 +9,7 @@
                     </i-tooltip>
                 </div>
             </div>
-            <Tree :data="buildingInfo" class="org-tree" :render="renderContent"></Tree>
+            <Tree :data="buildingInfo" class="org-trerenderContente" :render="renderContent"></Tree>
         </i-col>
         <i-col span="19">
             <i-card class="panel">
@@ -95,6 +95,7 @@ export default {
                 "span",
                 {
                     class: { "ivu-tree-title": true },
+                    style: { width: "225px", color: "white", height: "28px" },
                     on: {
                         click () {
                             THIS.GetLabData(data.ID);
@@ -104,7 +105,7 @@ export default {
                 [
                     h(
                         "span",
-                        { style: { width: "100%", marginRight: "8px" } },
+                        { style: { marginRight: "8px" } },
                         data.Name
                     ),
                     h("Icon", {
@@ -133,11 +134,21 @@ export default {
             this.modalShow = true;
         },
         submit () {
-            axios.post("/api/building/SaveBuilding", { ...this.modal }, msg => {
-                if (msg.success) {
-                    this.$Message.success("楼栋保存成功");
-                    this.GetBuildingData();
+            let formBuilding = this.$refs["Form"];
+            formBuilding.validate(v => {
+                if (!v) {
+                    this.$Modal.error({
+                        title: "表单有误",
+                        content: "请正确输入表单"
+                    });
+                    return;
                 }
+                axios.post("/api/building/SaveBuilding", { ...this.modal }, msg => {
+                    if (msg.success) {
+                        this.$Message.success("楼栋保存成功");
+                        this.GetBuildingData();
+                    }
+                });
             });
         },
         cancel () {
