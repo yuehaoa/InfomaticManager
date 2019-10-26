@@ -239,6 +239,13 @@ export default {
                         trigger: "blur"
                     }
                 ],
+                SubCampus: [
+                    {
+                        required: true,
+                        message: "必须输入校区名",
+                        trigger: "blur"
+                    }
+                ],
                 Telephone: [
                     {
                         required: false,
