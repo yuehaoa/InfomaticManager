@@ -95,7 +95,6 @@ export default {
                 "span",
                 {
                     class: { "ivu-tree-title": true },
-                    style: { width: "225px", color: "white", height: "28px" },
                     on: {
                         click () {
                             THIS.GetLabData(data.ID);
