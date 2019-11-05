@@ -30,7 +30,7 @@
                         <i-col span="20">
                             <Icon @click.native="collapsedSider" :class="rotateIcon" :style="{margin: '0 20px'}" type="md-menu" size="24"></Icon>
                         </i-col>
-                        <i-col span="1">
+                        <!-- <i-col span="1">
                             <Dropdown trigger="click">
                                 <div style="cursor:pointer">
                                     <Icon type="md-add" size="24"></Icon>
@@ -38,7 +38,7 @@
                                 </div>
                                 <DropdownMenu slot="list"></DropdownMenu>
                             </Dropdown>
-                        </i-col>
+                        </i-col> -->
                         <i-col span="1">
                             <Icon :style="[{margin: '0 5px'},{cursor: 'pointer'}]" type="md-notifications-outline" size="24"></Icon>
                         </i-col>

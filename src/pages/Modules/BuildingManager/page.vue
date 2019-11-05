@@ -20,7 +20,7 @@
                 <i-table stripe :columns="columns" :data="labInfo">
                     <template slot-scope="{row}" slot="roomType">{{enums.LabType[row.RoomType]}}</template>
                     <template slot-scope="{row}" slot="action">
-                        <a class="btn" href="javascript:;" @click="toLabDetail(row.ID)">[转到]</a>
+                        <a class="btn" href="javascript:;" @click="toLabDetail(row.ID)">[详情]</a>
                         <a class="btn" href="javascript:;" @click="removeLab(row.ID)">[删除]</a>
                     </template>
                 </i-table>
@@ -152,7 +152,7 @@ export default {
             });
         },
         cancel () {
-            this.$Message.info("Clicked cancel");
+            // this.$Message.info("Clicked cancel");
         },
         pageChage (p) {
             this.page = p;
@@ -186,7 +186,7 @@ export default {
             });
         },
         toLabDetail (ID) {
-            this.$router.push({ name: "LabManager", params: { ID } });
+            this.$router.push({ name: "LabManager", query: { ID } });
         }
     },
     data () {
@@ -202,7 +202,7 @@ export default {
             enums,
             columns: [
                 {
-                    title: "楼栋名称",
+                    title: "实验室名称",
                     key: "Name"
                 },
                 {
