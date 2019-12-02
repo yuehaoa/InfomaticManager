@@ -24,6 +24,9 @@
                     <i-form-item label="实验室名称" prop="Name">
                         <i-input v-model="labInfo.Name" />
                     </i-form-item>
+                    <i-form-item label="实验室房间号" prop="RoomCode">
+                        <i-input v-model="labInfo.RoomCode" />
+                    </i-form-item>
                     <i-form-item label="所在楼名称" prop="BuildingId">
                         <i-select v-model="labInfo.BuildingId">
                             <i-option
@@ -108,6 +111,7 @@ export default {
                 ID: "",
                 Name: "",
                 BuildingId: "",
+                RoomCode: "",
                 Administrator: "",
                 AdminTelephone: "",
                 SecurityOfficer: "",
@@ -126,6 +130,19 @@ export default {
                     {
                         required: true,
                         message: "必须输入楼栋名称",
+                        trigger: "blur"
+                    }
+                ],
+                RoomCode: [
+                    {
+                        required: true,
+                        message: "必须输入房间号",
+                        trigger: "blur"
+                    },
+                    {
+                        type: "string",
+                        pattern: "\\d+",
+                        message: "必须输入数字",
                         trigger: "blur"
                     }
                 ],
