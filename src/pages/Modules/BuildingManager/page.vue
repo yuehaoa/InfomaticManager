@@ -16,11 +16,12 @@
                 <p slot="title">{{dataName}} 实验室列表</p>
                 <div style="margin-bottom:10px;">
                     <i-button @click="toLabDetail()">添加实验室</i-button>
+                    <i-button @click="downloadQRCode()">下载房间二维码</i-button>
                 </div>
                 <i-table stripe :columns="columns" :data="labInfo">
                     <template slot-scope="{row}" slot="roomType">{{enums.LabType[row.RoomType]}}</template>
                     <template slot-scope="{row}" slot="action">
-                        <a class="btn" href="javascript:;" @click="toLabDetail(row.ID)">[转到]</a>
+                        <a class="btn" href="javascript:;" @click="toLabDetail(row.ID)">[详情]</a>
                         <a class="btn" href="javascript:;" @click="removeLab(row.ID)">[删除]</a>
                     </template>
                 </i-table>
@@ -62,6 +63,17 @@
 const regex = require("@/regex.js");
 let app = require("@/config");
 let enums = require("@/config/enums");
+let emptyModal = () => {
+            return {
+                ID: "",
+                Name: "",
+                SubCampus: "",
+                Administrator: "",
+                Telephone: "",
+                DisplayOrder: "",
+                CreatedOn: ""
+            };
+        };
 //    var _ = require("lodash");
 const axios = require("axios");
 export default {
@@ -93,7 +105,7 @@ export default {
                 [
                     h(
                         "span",
-                        { style: { width: "100%", marginRight: "8px" } },
+                        { style: { marginRight: "8px" } },
                         data.Name
                     ),
                     h("Icon", {
@@ -118,21 +130,29 @@ export default {
             });
         },
         modifyBuilding (data) {
-            this.modal = data || this.emptyModal();
+            this.modal = data || emptyModal();
             this.modalShow = true;
         },
         submit () {
-            axios.post("/api/building/SaveBuilding", { ...this.modal }, msg => {
-                if (msg.success) {
-                    this.$Message.success("楼栋保存成功");
-                    this.GetBuildingData();
-                    // this.modalShow = false;
+            let formBuilding = this.$refs["Form"];
+            formBuilding.validate(v => {
+                if (!v) {
+                    this.$Modal.error({
+                        title: "表单有误",
+                        content: "请正确输入表单"
+                    });
+                    return;
                 }
+                axios.post("/api/building/SaveBuilding", { ...this.modal }, msg => {
+                    if (msg.success) {
+                        this.$Message.success("楼栋保存成功");
+                        this.GetBuildingData();
+                    }
+                });
             });
         },
         cancel () {
-            this.$Message.info("Clicked cancel");
-            this.modalShow = false;
+            // this.$Message.info("Clicked cancel");
         },
         pageChage (p) {
             this.page = p;
@@ -166,30 +186,18 @@ export default {
             });
         },
         toLabDetail (ID) {
-            this.$router.push({ name: "LabManager", params: { ID } });
+            this.$router.push({ name: "LabManager", query: { ID } });
+        },
+        downloadQRCode () {
+            window.open("/api/building/GetQrCodeZip");
         }
     },
     data () {
-        var emptyModal = () => {
-            return {
-                ID: "",
-                Name: "",
-                SubCampus: "",
-                Administrator: "",
-                Telephone: "",
-                DisplayOrder: "",
-                CreatedOn: ""
-            };
-        };
         return {
             labInfo: [],
             buildingInfo: [],
             modal: emptyModal(),
             modalShow: false,
-            emptyModal,
-            renderClickData: "",
-            buildingTree: [],
-            seatInfo: {},
             page: 1,
             pageSize: 10,
             dataName: "",
@@ -197,7 +205,7 @@ export default {
             enums,
             columns: [
                 {
-                    title: "楼栋名称",
+                    title: "实验室名称",
                     key: "Name"
                 },
                 {
@@ -231,6 +239,13 @@ export default {
                     {
                         required: true,
                         message: "必须输入楼栋名",
+                        trigger: "blur"
+                    }
+                ],
+                SubCampus: [
+                    {
+                        required: true,
+                        message: "必须输入校区名",
                         trigger: "blur"
                     }
                 ],

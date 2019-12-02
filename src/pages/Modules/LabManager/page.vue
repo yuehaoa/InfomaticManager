@@ -1,89 +1,72 @@
 <template>
-    <div id="lab-manager">
-        <i-card>
-            <p slot="title">实验室信息</p>
-            <i-form :model="labInfo" :rules="rules" ref="form">
-                <i-row type="flex" justify="space-between" class="code-row-bg">
-                    <i-col span="4">
-                        <i-form-item label="实验室名称" prop="Name">
-                            <i-input v-model="labInfo.Name" />
-                        </i-form-item>
-                    </i-col>
-                    <i-col span="4">
-                        <i-form-item label="当前实验室ID" prop="ID">
-                            <i-input v-model="labInfo.ID" readonly />
-                        </i-form-item>
-                    </i-col>
-                    <i-col span="4">
-                        <i-form-item label="所在楼名称" prop="BuildingId">
-                            <i-select v-model="labInfo.BuildingId">
-                                <i-option
-                                    v-for="(item,index) in buildingInfo"
-                                    :value="item.ID"
-                                    :key="index"
-                                >{{ item.Name }}</i-option>
-                            </i-select>
-                        </i-form-item>
-                    </i-col>
-                    <i-col span="4">
-                        <i-form-item label="实验室联系人" prop="Administrator">
-                            <i-input v-model="labInfo.Administrator" />
-                        </i-form-item>
-                    </i-col>
-                    <i-col span="4">
-                        <i-form-item label="联系人电话" prop="AdminTelephone">
-                            <i-input v-model="labInfo.AdminTelephone" />
-                        </i-form-item>
-                    </i-col>
-                </i-row>
-                <i-row type="flex" justify="space-between" class="code-row-bg">
-                    <i-col span="4">
-                        <i-form-item label="安全负责人" prop="SecurityOfficer">
-                            <i-input v-model="labInfo.SecurityOfficer" />
-                        </i-form-item>
-                    </i-col>
-                    <i-col span="4">
-                        <i-form-item label="安全负责人电话" prop="SOTelephone">
-                            <i-input v-model="labInfo.SOTelephone" />
-                        </i-form-item>
-                    </i-col>
-                    <i-col span="4">
-                        <i-form-item label="排列序号" prop="DisplayOrder">
-                            <i-input v-model="labInfo.DisplayOrder" />
-                        </i-form-item>
-                    </i-col>
-                    <i-col span="4">
-                        <i-form-item label="创建日期" prop="CreatedOn">
-                            <i-input v-model="labInfo.CreatedOn" disabled />
-                        </i-form-item>
-                    </i-col>
-                    <i-col span="4">
-                        <i-form-item label="类型" prop="RoomType">
-                            <i-input v-model="labInfo.RoomType" />
-                        </i-form-item>
-                    </i-col>
-                </i-row>
-                <i-form-item>
-                    <i-button type="primary" @click="handleSubmit('form')">{{labInfo.ID?'修改':'新建'}}</i-button>
-                </i-form-item>
-            </i-form>
-        </i-card>
-        <i-table stripe :columns="columns" v-if="labInfo.ID">
-            <template slot-scope="{row}" slot="action">
-                <a class="btn" href="javascript:;">[转到]</a>
-                <a class="btn" href="javascript:;" @click="removeLab(row.ID)">[删除]</a>
-            </template>
-        </i-table>
-    </div>
+    <i-row id="lab-manager">
+        <i-col span="19">
+            <i-tabs type="card" class="tab-panel">
+                <i-tab-pane label="时间安排表">
+                    <TimeTable :rid="labInfo.ID" />
+                </i-tab-pane>
+                <i-tab-pane label="机位安排表">
+                    <i-alert show-icon>
+                        敬请期待
+                        <Icon type="md-analytics" slot="icon"/>
+                        <template slot="desc">非本周开发内容，占位使用。</template>
+                    </i-alert>
+                </i-tab-pane>
+            </i-tabs>
+        </i-col>
+        <i-col span="5">
+            <i-card>
+                <p slot="title">实验室信息</p>
+                <i-form :model="labInfo" :rules="rules" ref="form">
+                    <i-form-item label="流程审核负责人">
+                        <user-selector placeholder="请输入学/工号或姓名" v-model="labInfo.AuditAdministrator" />
+                    </i-form-item>
+                    <i-form-item label="实验室名称" prop="Name">
+                        <i-input v-model="labInfo.Name" />
+                    </i-form-item>
+                    <i-form-item label="实验室房间号" prop="RoomCode">
+                        <i-input v-model="labInfo.RoomCode" />
+                    </i-form-item>
+                    <i-form-item label="所在楼名称" prop="BuildingId">
+                        <i-select v-model="labInfo.BuildingId">
+                            <i-option
+                                v-for="(item,index) in buildingInfo"
+                                :value="item.ID"
+                                :key="index"
+                            >{{ item.Name }}</i-option>
+                        </i-select>
+                    </i-form-item>
+                    <i-form-item label="实验室联系人" prop="Administrator">
+                        <i-input v-model="labInfo.Administrator" />
+                    </i-form-item>
+                    <i-form-item label="联系人电话" prop="AdminTelephone">
+                        <i-input v-model="labInfo.AdminTelephone" />
+                    </i-form-item>
+                    <i-form-item label="安全负责人" prop="SecurityOfficer">
+                        <i-input v-model="labInfo.SecurityOfficer" />
+                    </i-form-item>
+                    <i-form-item label="安全负责人电话" prop="SOTelephone">
+                        <i-input v-model="labInfo.SOTelephone" />
+                    </i-form-item>
+                    <i-form-item>
+                        <i-button type="primary" @click="handleSubmit('form')">{{labInfo.ID?'修改':'新建'}}</i-button>
+                    </i-form-item>
+                </i-form>
+            </i-card>
+        </i-col>
+    </i-row>
 </template>
 <script>
+import TimeTable from './TimeTable'
 const regex = require("@/regex.js");
 let app = require("@/config");
 //    var _ = require("lodash");
 const axios = require("axios");
+const guidEmpty = "00000000-0000-0000-0000-000000000000";
 export default {
+    components: { TimeTable },
     mounted () {
-        this.labInfo.ID = this.$route.params.ID;
+        this.labInfo.ID = this.$route.query.ID;
         this.GetLabData(this.labInfo.ID);
         this.GetBuildingData();
         app.title = "楼栋管理";
@@ -105,10 +88,14 @@ export default {
             let form = this.$refs[name];
             form.validate(err => {
                 if (!err) {
+                    this.$Modal.error({
+                        title: "表单有误",
+                        content: "请正确输入表单"
+                    });
                     return;
                 }
                 axios.post("/api/building/SaveRoom", { ...this.labInfo }, msg => {
-                    console.log(msg);
+                    this.$Message.success("实验室保存成功");
                 });
             });
         },
@@ -124,57 +111,38 @@ export default {
                 ID: "",
                 Name: "",
                 BuildingId: "",
+                RoomCode: "",
                 Administrator: "",
                 AdminTelephone: "",
                 SecurityOfficer: "",
                 SOTelephone: "",
                 DisplayOrder: "",
                 CreatedOn: "",
+                AuditAdministrator: guidEmpty,
                 RoomType: ""
             },
             modifyLab: true,
             buildingInfo: [],
             seatInfo: {},
-            columns: [
-                {
-                    title: "楼栋名称",
-                    key: "Name"
-                },
-                {
-                    title: "所在楼栋ID（暂时）",
-                    key: "BuildingId"
-                },
-                {
-                    title: "实验室联系人",
-                    key: "Administrator"
-                },
-                {
-                    title: "联系人电话",
-                    key: "AdminTelephone"
-                },
-                {
-                    title: "安全负责人",
-                    key: "SecurityOfficer"
-                },
-                {
-                    title: "安全负责人电话",
-                    key: "SOTelephone"
-                },
-                {
-                    title: "实验室类型",
-                    key: "RoomType"
-                },
-                {
-                    title: "操作",
-                    slot: "action"
-                }
-            ],
             data: [],
             rules: {
                 Name: [
                     {
                         required: true,
                         message: "必须输入楼栋名称",
+                        trigger: "blur"
+                    }
+                ],
+                RoomCode: [
+                    {
+                        required: true,
+                        message: "必须输入房间号",
+                        trigger: "blur"
+                    },
+                    {
+                        type: "string",
+                        pattern: "\\d+",
+                        message: "必须输入数字",
                         trigger: "blur"
                     }
                 ],
@@ -231,4 +199,20 @@ export default {
 };
 </script>
 <style lang="less">
+.tab-panel {
+    padding-right: 16px;
+    .ivu-tabs-content {
+        margin-top: -16px;
+        .ivu-tabs-tabpane {
+            background: #fff;
+            padding: 16px;
+        }
+    }
+    .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab {
+        border-color: transparent;
+    }
+    .ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab-active {
+        border-color: #fff;
+    }
+}
 </style>
