@@ -35,6 +35,10 @@ export default {
                 return this.multiple ? [] : ""
             }
         },
+        withOut: {
+            type: String | Array,
+            default: empty
+        },
         disabled: {
             type: Boolean,
             default: false
@@ -60,6 +64,7 @@ export default {
             let THIS = this;
             this.orgRoot = root;
             data.name = data.name === "无部门" ? "根部门" : data.name
+
             return h('span', {
                 class: { "ivu-tree-title": true, "ivu-tree-title-selected": data.selected },
                 on: {
@@ -107,7 +112,18 @@ export default {
                 }
 
                 this.emptyText = "数据加载中...";
-                this.orgTree = msg.data;
+                this.orgTree = msg.data.filter(e => {
+                    let withOut = this.withOut;
+                    if (typeof withOut === "string" && withOut !== empty && withOut === e.id) {
+                        return false;
+                    }
+
+                    if (withOut instanceof Array && e.id !== empty && withOut.indexOf(e.id) > -1) {
+                        return false;
+                    }
+
+                    return true;
+                });
                 if (!this.orgTree.length) this.emptyText = "暂无数据";
             })
         },
@@ -118,12 +134,30 @@ export default {
                     let data = [];
                     cb(data);
                 } else {
-                    msg.data.map(e => {
+                    let data = msg.data.filter(e => {
+                        let withOut = this.withOut;
+                        if (typeof withOut === "string" && withOut !== empty && withOut === e.id) {
+                            return false;
+                        }
+
+                        if (withOut instanceof Array && e.id !== empty && withOut.indexOf(e.id) > -1) {
+                            return false;
+                        }
+
+                        return true;
+                    }) || [];
+
+                    if (data === []) {
+                        delete item.children;
+                    }
+
+                    data.map(e => {
                         if (e.id === this.innerValue) {
                             e.selected = true;
                         }
                     })
-                    cb(msg.data);
+
+                    cb(data);
                 }
             })
         },
