@@ -7,6 +7,7 @@
         :clearable="clearable"
         :filterable="filterable"
         :loading="loading"
+        :capture="false"
         @on-select-selected="onInternalSelectChange"
         @on-clear="onClear"
     >
@@ -181,7 +182,7 @@ export default {
                     let item = e.node;
                     control.onOptionClick({
                         value: item.id,
-                        label: item.name,
+                        label: item.label,
                         node: item
                     })
                 }

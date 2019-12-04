@@ -21,6 +21,9 @@ Vue.mixin(globalMixin);
 Vue.use(router);
 Vue.use(iView);
 Vue.use(rView);
+Vue.use(iView, {
+    capture: false
+});
 Vue.component("admin-layout", adminLayout);
 Vue.component("empty-layout", emptyLayout);
 Vue.component("login-layout", loginLayout);

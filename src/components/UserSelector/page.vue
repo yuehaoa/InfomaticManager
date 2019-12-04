@@ -1,5 +1,5 @@
 <template>
-    <Select v-bind="$attrs" :multiple="multiple" ref="control" @on-clear="onClear"
+    <Select v-bind="$attrs" :multiple="multiple" ref="control" @on-clear="onClear" :capture="false"
             :loading="loading" filterable remote :remote-method="userRemote" @on-change="setSelect" :clearable="true"
     >
         <Option v-for="option in userOptions" :value="JSON.stringify(option)" :key="option.ID">

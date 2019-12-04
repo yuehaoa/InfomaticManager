@@ -149,7 +149,7 @@ export default {
             ])
         },
         getDepartTree () {
-            axios.post("/api/security/GetDepartTree", {}, msg => {
+            axios.post("/api/security/GetDepartTree", { ajax: true }, msg => {
                 if (!msg.success) {
                     this.orgTree = [];
                     this.emptyText = msg.msg;
@@ -162,7 +162,7 @@ export default {
             })
         },
         getChildTree (item, cb) {
-            axios.post("/api/security/GetDepartTree", { id: item.id }, msg => {
+            axios.post("/api/security/GetDepartTree", { id: item.id, ajax: true }, msg => {
                 if (!msg.success) {
                     this.$Message.error(msg.msg);
                     let data = [];
