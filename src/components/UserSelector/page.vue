@@ -43,7 +43,6 @@ export default {
             }
             this.loading = true;
             axios.post("/api/security/SearchUser", {keyword: query, role: this.role, id}, msg => {
-                console.log(msg);
                 if (msg.success) {
                     if (msg.select) {
                         // 只有一个的情况下
@@ -56,7 +55,9 @@ export default {
                 this.loading = false;
             })
         }, 500),
-        onClear () {},
+        onClear () {
+            this.select()
+        },
         select (user) {
             user = user || {};
             user.ID = user.ID || guidEmpty;
@@ -86,9 +87,6 @@ export default {
     },
     data () {
         // let finalValue = "";
-        if (this.value !== guidEmpty) {
-            this.userRemote("", this.value);
-        }
         return {
             finalValue: this.value,
             loading: false,
@@ -96,6 +94,13 @@ export default {
             setValue: false,
             outValue: this.value,
             userOptions: []
+        }
+    },
+    watch: {
+        value (nv) {
+            if (nv !== guidEmpty) {
+                this.userRemote("", this.value);
+            }
         }
     }
 }

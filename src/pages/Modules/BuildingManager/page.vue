@@ -16,11 +16,12 @@
                 <p slot="title">{{dataName}} 实验室列表</p>
                 <div style="margin-bottom:10px;">
                     <i-button @click="toLabDetail()">添加实验室</i-button>
+                    <i-button @click="downloadQRCode()">下载房间二维码</i-button>
                 </div>
                 <i-table stripe :columns="columns" :data="labInfo">
                     <template slot-scope="{row}" slot="roomType">{{enums.LabType[row.RoomType]}}</template>
                     <template slot-scope="{row}" slot="action">
-                        <a class="btn" href="javascript:;" @click="toLabDetail(row.ID)">[转到]</a>
+                        <a class="btn" href="javascript:;" @click="toLabDetail(row.ID)">[详情]</a>
                         <a class="btn" href="javascript:;" @click="removeLab(row.ID)">[删除]</a>
                     </template>
                 </i-table>
@@ -151,7 +152,7 @@ export default {
             });
         },
         cancel () {
-            this.$Message.info("Clicked cancel");
+            // this.$Message.info("Clicked cancel");
         },
         pageChage (p) {
             this.page = p;
@@ -185,7 +186,10 @@ export default {
             });
         },
         toLabDetail (ID) {
-            this.$router.push({ name: "LabManager", params: { ID } });
+            this.$router.push({ name: "LabManager", query: { ID } });
+        },
+        downloadQRCode () {
+            window.open("/api/building/GetQrCodeZip");
         }
     },
     data () {
@@ -201,7 +205,7 @@ export default {
             enums,
             columns: [
                 {
-                    title: "楼栋名称",
+                    title: "实验室名称",
                     key: "Name"
                 },
                 {
@@ -235,6 +239,13 @@ export default {
                     {
                         required: true,
                         message: "必须输入楼栋名",
+                        trigger: "blur"
+                    }
+                ],
+                SubCampus: [
+                    {
+                        required: true,
+                        message: "必须输入校区名",
                         trigger: "blur"
                     }
                 ],
