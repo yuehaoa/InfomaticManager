@@ -27,6 +27,15 @@
                     <i-form-item label="实验室房间号" prop="RoomCode">
                         <i-input v-model="labInfo.RoomCode" />
                     </i-form-item>
+                    <i-form-item label="实验室类型" prop="RoomType">
+                        <i-select v-model="labInfo.RoomType">
+                            <i-option
+                                v-for="(value, key, index) in RoomType"
+                                :value="key"
+                                :key="index"
+                                >{{ value }}</i-option>
+                        </i-select>
+                    </i-form-item>
                     <i-form-item label="所在楼名称" prop="BuildingId">
                         <i-select v-model="labInfo.BuildingId">
                             <i-option
@@ -60,6 +69,7 @@
 import TimeTable from './TimeTable'
 const regex = require("@/regex.js");
 let app = require("@/config");
+let enums = require("@/config/enums");
 //    var _ = require("lodash");
 const axios = require("axios");
 const guidEmpty = "00000000-0000-0000-0000-000000000000";
@@ -121,6 +131,7 @@ export default {
                 AuditAdministrator: guidEmpty,
                 RoomType: ""
             },
+            RoomType: enums.RoomType,
             modifyLab: true,
             buildingInfo: [],
             seatInfo: {},
@@ -143,6 +154,13 @@ export default {
                         type: "string",
                         pattern: "\\d+",
                         message: "必须输入数字",
+                        trigger: "blur"
+                    }
+                ],
+                RoomType: [
+                    {
+                        required: true,
+                        message: "必须输入房间类型",
                         trigger: "blur"
                     }
                 ],
