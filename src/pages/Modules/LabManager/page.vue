@@ -27,6 +27,15 @@
                     <i-form-item label="实验室房间号" prop="RoomCode">
                         <i-input v-model="labInfo.RoomCode" />
                     </i-form-item>
+                    <i-form-item label="实验室类型" prop="RoomType">
+                        <i-select v-model="labInfo.RoomType">
+                            <i-option
+                                v-for="(value, key) in RoomType"
+                                :value="key"
+                                :key="key"
+                                >{{ value }}</i-option>
+                        </i-select>
+                    </i-form-item>
                     <i-form-item label="所在楼名称" prop="BuildingId">
                         <i-select v-model="labInfo.BuildingId">
                             <i-option
