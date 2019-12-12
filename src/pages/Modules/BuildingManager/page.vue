@@ -156,11 +156,11 @@ export default {
         },
         pageChage (p) {
             this.page = p;
-            this.getLabs();
+            this.GetLabData();
         },
         pageSizeChange (pz) {
             this.pageSize = pz;
-            this.getLabs();
+            this.GetLabData();
         },
         removeLab (id) {
             this.$Modal.confirm({
