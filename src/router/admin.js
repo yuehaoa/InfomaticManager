@@ -30,6 +30,12 @@ const components = {
     layout: "admin",
     component: () => import(/* webpackChunkName: "security" */"@p/Cores/UserManager")
   },
+  OrgManager: {
+    path: "/manage/orgmanager",
+    showAs: "UserManager",
+    layout: "admin",
+    component: () => import(/* webpackChunkName: "security" */"@p/Cores/OrgManager")
+  },
   RoleManager: {
     path: "/manage/rolemanager",
     layout: "admin",
