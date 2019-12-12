@@ -30,10 +30,10 @@
                     <i-form-item label="实验室类型" prop="RoomType">
                         <i-select v-model="labInfo.RoomType">
                             <i-option
-                                v-for="(value, key) in RoomType"
-                                :value="key"
-                                :key="key"
-                                >{{ value }}</i-option>
+                                v-for="(item, index) in RoomType"
+                                :value="index"
+                                :key="index"
+                                >{{ item }}</i-option>
                         </i-select>
                     </i-form-item>
                     <i-form-item label="所在楼名称" prop="BuildingId">
@@ -91,7 +91,7 @@ export default {
             if (!ID) return;
             axios.post("/api/building/GetRoom", { ID }, msg => {
                 this.labInfo = msg.data;
-                this.data = msg.data;
+                this.labInfo.RoomType = String(this.labInfo.RoomType);
             });
         },
         handleSubmit (name) {
