@@ -79,7 +79,7 @@ export default {
         this.labInfo.ID = this.$route.query.ID;
         this.GetLabData(this.labInfo.ID);
         this.GetBuildingData();
-        app.title = "楼栋管理";
+        app.title = "实验室管理";
     },
     methods: {
         GetBuildingData () {
@@ -140,7 +140,7 @@ export default {
                 Name: [
                     {
                         required: true,
-                        message: "必须输入楼栋名称",
+                        message: "必须输入实验室名称",
                         trigger: "blur"
                     }
                 ],
