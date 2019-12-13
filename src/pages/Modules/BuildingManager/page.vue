@@ -31,7 +31,7 @@
                     :page-size="pageSize"
                     @on-change="pageChage"
                     @on-page-size-change="pageSizeChange"
-                    show-elevator
+                    show-sizer
                     show-size
                     show-total
                     style="margin-top:10px;"
