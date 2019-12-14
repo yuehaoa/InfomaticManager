@@ -27,6 +27,15 @@
                     <i-form-item label="实验室房间号" prop="RoomCode">
                         <i-input v-model="labInfo.RoomCode" />
                     </i-form-item>
+                    <i-form-item label="实验室类型" prop="RoomType">
+                        <i-select v-model="labInfo.RoomType">
+                            <i-option
+                                v-for="(item, index) in RoomType"
+                                :value="index"
+                                :key="index"
+                                >{{ item }}</i-option>
+                        </i-select>
+                    </i-form-item>
                     <i-form-item label="所在楼名称" prop="BuildingId">
                         <i-select v-model="labInfo.BuildingId">
                             <i-option
@@ -60,6 +69,7 @@
 import TimeTable from './TimeTable'
 const regex = require("@/regex.js");
 let app = require("@/config");
+let enums = require("@/config/enums");
 //    var _ = require("lodash");
 const axios = require("axios");
 const guidEmpty = "00000000-0000-0000-0000-000000000000";
@@ -69,7 +79,7 @@ export default {
         this.labInfo.ID = this.$route.query.ID;
         this.GetLabData(this.labInfo.ID);
         this.GetBuildingData();
-        app.title = "楼栋管理";
+        app.title = "实验室管理";
     },
     methods: {
         GetBuildingData () {
@@ -81,7 +91,7 @@ export default {
             if (!ID) return;
             axios.post("/api/building/GetRoom", { ID }, msg => {
                 this.labInfo = msg.data;
-                this.data = msg.data;
+                this.labInfo.RoomType = String(this.labInfo.RoomType);
             });
         },
         handleSubmit (name) {
@@ -121,6 +131,7 @@ export default {
                 AuditAdministrator: guidEmpty,
                 RoomType: ""
             },
+            RoomType: enums.RoomType,
             modifyLab: true,
             buildingInfo: [],
             seatInfo: {},
@@ -129,7 +140,7 @@ export default {
                 Name: [
                     {
                         required: true,
-                        message: "必须输入楼栋名称",
+                        message: "必须输入实验室名称",
                         trigger: "blur"
                     }
                 ],
@@ -143,6 +154,13 @@ export default {
                         type: "string",
                         pattern: "\\d+",
                         message: "必须输入数字",
+                        trigger: "blur"
+                    }
+                ],
+                RoomType: [
+                    {
+                        required: true,
+                        message: "必须输入房间类型",
                         trigger: "blur"
                     }
                 ],

@@ -19,7 +19,7 @@
                     <i-button @click="downloadQRCode()">下载房间二维码</i-button>
                 </div>
                 <i-table stripe :columns="columns" :data="labInfo">
-                    <template slot-scope="{row}" slot="roomType">{{enums.LabType[row.RoomType]}}</template>
+                    <template slot-scope="{row}" slot="roomType">{{enums.RoomType[row.RoomType]}}</template>
                     <template slot-scope="{row}" slot="action">
                         <a class="btn" href="javascript:;" @click="toLabDetail(row.ID)">[详情]</a>
                         <a class="btn" href="javascript:;" @click="removeLab(row.ID)">[删除]</a>
@@ -31,7 +31,7 @@
                     :page-size="pageSize"
                     @on-change="pageChage"
                     @on-page-size-change="pageSizeChange"
-                    show-elevator
+                    show-sizer
                     show-size
                     show-total
                     style="margin-top:10px;"
@@ -156,11 +156,11 @@ export default {
         },
         pageChage (p) {
             this.page = p;
-            this.getLabs();
+            this.GetLabData();
         },
         pageSizeChange (pz) {
             this.pageSize = pz;
-            this.getLabs();
+            this.GetLabData();
         },
         removeLab (id) {
             this.$Modal.confirm({

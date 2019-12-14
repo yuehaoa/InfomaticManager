@@ -138,7 +138,7 @@ export default {
                     h("Icon", { props: { type: data.isDepart ? 'md-folder' : 'ios-person' }, style: { marginRight: "8px" } }),
                     h("span", data.name === "无部门" ? "所有部门" : data.name)
                 ]),
-                data.id !== "00000000-0000-0000-0000-000000000000" ? h("span", { class: { "btn-area": true } }, [
+                (data.id !== "00000000-0000-0000-0000-000000000000" && data.isDepart) ? h("span", { class: { "btn-area": true } }, [
                     h("span", { class: { "btn": true }, on: { click: () => THIS.modifyDepart(data.id, data) } }, [
                         h("Icon", { props: { type: "md-create" } })
                     ]),
@@ -149,7 +149,7 @@ export default {
             ])
         },
         getDepartTree () {
-            axios.post("/api/security/GetDepartTree", {}, msg => {
+            axios.post("/api/security/GetDepartTree", { ajax: true }, msg => {
                 if (!msg.success) {
                     this.orgTree = [];
                     this.emptyText = msg.msg;
@@ -162,7 +162,7 @@ export default {
             })
         },
         getChildTree (item, cb) {
-            axios.post("/api/security/GetDepartTree", { id: item.id }, msg => {
+            axios.post("/api/security/GetDepartTree", { id: item.id, ajax: true }, msg => {
                 if (!msg.success) {
                     this.$Message.error(msg.msg);
                     let data = [];
@@ -196,7 +196,8 @@ export default {
             this.modifyDialog.model.departId = departId;
             this.modifyDialog.model.name = depart.name;
             this.modifyDialog.model.parentId = depart.pid
-            this.modifyDialog.isShow = true;
+            // this.modifyDialog.isShow = true;
+            this.$router.push({ name: "OrgManager", query: { id: departId } });
         },
         addDepart () {
             this.modifyDialog.title = "添加部门";

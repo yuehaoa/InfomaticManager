@@ -1,7 +1,7 @@
 {
-  "name": "hospital-home",
+  "name": "infomation-depart",
   "version": "1.0.0",
-  "description": "医院之家助手",
+  "description": "信息学院管理系统后台",
   "author": "厦门米雀软件科技有限公司",
   "private": false,
   "scripts": {
@@ -18,7 +18,7 @@
     "axios": "^0.18.0",
     "font-awesome": "^4.7.0",
     "font-awesome-webpack": "^0.0.5-beta.2",
-    "view-design": "^4.0.0",
+    "view-design": "^4.0.2",
     "jquery": "^3.4.0",
     "lodash": "^4.17.11",
     "md5": "^2.2.1",
