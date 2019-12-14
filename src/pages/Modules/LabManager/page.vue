@@ -6,11 +6,33 @@
                     <TimeTable :rid="labInfo.ID" />
                 </i-tab-pane>
                 <i-tab-pane label="机位安排表">
-                    <i-alert show-icon>
-                        敬请期待
-                        <Icon type="md-analytics" slot="icon"/>
-                        <template slot="desc">非本周开发内容，占位使用。</template>
-                    </i-alert>
+                    <i-row>
+                         <i-col span="3">
+                            <i-button size="large" @click="createSeat()" type="primary">新建机位</i-button>
+                         </i-col>
+                         <i-col span="17">
+                            <i-input prefix="ios-search" size="large" placeholder="搜索机房座位号" v-model="keyword" @keyup.enter.native="getSeatsData" />
+                        </i-col>
+                    </i-row>
+                    <i-divider/>
+                    <i-table stripe :columns="columns" :data="seatInfo">
+                        <template slot-scope="{row}" slot="State">{{enums.StateType[row.State]}}</template>
+                        <template slot-scope="{row}" slot="action">
+                        <a class="btn" href="javascript:;" @click="modifySeat(row)">[修改]</a>
+                        <a class="btn" href="javascript:;" @click="removeSeat(row.ID)">[删除]</a>
+                    </template>
+                    </i-table>
+                    <i-page
+                    :total="seatNum"
+                    :current.sync="page"
+                    :page-size="pageSize"
+                    @on-change="pageChage"
+                    @on-page-size-change="pageSizeChange"
+                    show-sizer
+                    show-size
+                    show-total
+                    style="margin-top:10px;"
+                    />
                 </i-tab-pane>
             </i-tabs>
         </i-col>
@@ -63,6 +85,25 @@
                 </i-form>
             </i-card>
         </i-col>
+        <i-modal v-model="modalShow" title="新建/修改机位" @on-ok="submit()" @on-cancel="cancel()">
+            <i-form ref="seatForm" :model="modal" :rules="seatRules">
+                <i-form-item label="机位座位号" prop="Code">
+                    <i-input v-model="modal.Code" />
+                </i-form-item>
+                <i-form-item label="机位设备信息" prop="Memo">
+                    <i-input v-model="modal.Memo" />
+                </i-form-item>
+                <i-form-item label="机位状态" prop="State">
+                    <i-select v-model="modal.State">
+                        <i-option
+                            v-for="(item,index) in StateType"
+                            :value="index"
+                            :key="index"
+                        >{{ item }}</i-option>
+                    </i-select>
+                </i-form-item>
+            </i-form>
+        </i-modal>
     </i-row>
 </template>
 <script>
@@ -70,24 +111,91 @@ import TimeTable from './TimeTable'
 const regex = require("@/regex.js");
 let app = require("@/config");
 let enums = require("@/config/enums");
-//    var _ = require("lodash");
+let _ = require("lodash");
 const axios = require("axios");
 const guidEmpty = "00000000-0000-0000-0000-000000000000";
 export default {
     components: { TimeTable },
     mounted () {
         this.labInfo.ID = this.$route.query.ID;
-        this.GetLabData(this.labInfo.ID);
-        this.GetBuildingData();
-        app.title = "楼栋管理";
+        this.getLabData(this.labInfo.ID);
+        this.getBuildingData();
+        this.getSeatsData();
+        app.title = "实验室及机位管理";
     },
     methods: {
-        GetBuildingData () {
-            axios.post("/api/building/GetBuildings", {}, msg => {
-                this.buildingInfo = msg.data;
+        getSeatsData () {
+            let id = this.labInfo.ID;
+            let param = {
+                page: this.page,
+                pageSize: this.pageSize,
+                pid: id
+            }
+            param.Code = this.keyword ? this.keyword : undefined;
+            axios.post("/api/building/GetSeats", param, msg => {
+                if (msg.success) {
+                    this.seatInfo = msg.data;
+                    this.seatNum = msg.totalRow;
+                }
             });
         },
-        GetLabData (ID) {
+        getBuildingData () {
+             axios.post("/api/building/GetBuildings", {}, msg => {
+                this.buildingInfo = msg.data;
+             });
+        },
+        pageChage (p) {
+            this.page = p;
+            this.getSeatsData();
+        },
+        pageSizeChange (pz) {
+            this.pageSize = pz;
+            this.getSeatsData();
+        },
+        removeSeat (id) {
+            this.$Modal.confirm({
+                title: "确认删除该机位？",
+                onOk: () => {
+                    axios.post("/api/building/RemoveSeat", { id }, msg => {
+                        if (msg.success) {
+                            this.$Message.success("机位删除成功");
+                        }
+                        this.getSeatsData();
+                    });
+                }
+            });
+        },
+        submit () {
+            let formSeat = this.$refs["seatForm"];
+            formSeat.validate(v => {
+                if (!v) {
+                    this.$Modal.error({
+                        title: "表单有误",
+                        content: "请正确输入表单"
+                    });
+                    return;
+                }
+                axios.post("/api/building/SaveSeat", { ...this.modal }, msg => {
+                    if (msg.success) {
+                        this.$Message.success("机位保存成功");
+                        this.getSeatsData();
+                    }
+                });
+            });
+        },
+        cancel () {
+
+        },
+        createSeat () {
+            this.modal.RoomId = this.labInfo.ID;
+            this.modalShow = true;
+        },
+        modifySeat (row) {
+            this.modal = row;
+            this.modal.State = String(this.modal.State);
+            this.modalShow = true;
+        },
+        getLabData (ID) {
             if (!ID) return;
             axios.post("/api/building/GetRoom", { ID }, msg => {
                 this.labInfo = msg.data;
@@ -113,8 +221,16 @@ export default {
             axios.post("/api/building/RemoveRoom", { id }, msg => {
                 console.log(msg);
             });
-        }
+        },
+        setKeyword: _.debounce(function () {
+            this.getSeatsData();
+        }, 500)
     },
+    watch: {
+    keyword (v) {
+      this.setKeyword();
+    }
+  },
     data () {
         return {
             labInfo: {
@@ -131,16 +247,71 @@ export default {
                 AuditAdministrator: guidEmpty,
                 RoomType: ""
             },
+            modal: {
+                Code: "",
+                RoomId: "",
+                Memo: "",
+                State: ""
+            },
+            keyword: "",
+            seatNum: 0,
+            modalShow: false,
+            columns: [
+                { title: "机房座位号",
+                    key: "Code"
+                },
+                { title: "机位设备信息",
+                  key: "Memo"
+                },
+                { title: "机位状态",
+                  slot: "State"
+                },
+                {
+                    title: "创建时间",
+                    key: "CreatedOn"
+                },
+                 {
+                    title: "操作",
+                    slot: "action"
+                }
+            ],
+            seatRules: {
+                Code: [
+                    {
+                        required: true,
+                        message: "必须输入机房座位号",
+                        trigger: "blur"
+                    }
+                ],
+                Memo: [
+                    {
+                        required: true,
+                        message: "必须输入机房设备信息",
+                        trigger: "blur"
+                    }
+                ],
+                State: [
+                    {
+                        required: true,
+                        message: "必须选择机位状态",
+                        trigger: "blur"
+                    }
+                ]
+            },
+            page: 1,
+            pageSize: 100,
             RoomType: enums.RoomType,
+            StateType: enums.StateType,
+            enums,
             modifyLab: true,
             buildingInfo: [],
-            seatInfo: {},
+            seatInfo: [],
             data: [],
             rules: {
                 Name: [
                     {
                         required: true,
-                        message: "必须输入楼栋名称",
+                        message: "必须输入实验室名称",
                         trigger: "blur"
                     }
                 ],
@@ -225,12 +396,6 @@ export default {
             background: #fff;
             padding: 16px;
         }
-    }
-    .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab {
-        border-color: transparent;
-    }
-    .ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab-active {
-        border-color: #fff;
     }
 }
 </style>

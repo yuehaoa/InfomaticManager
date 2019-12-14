@@ -31,7 +31,7 @@
                     :page-size="pageSize"
                     @on-change="pageChage"
                     @on-page-size-change="pageSizeChange"
-                    show-elevator
+                    show-sizer
                     show-size
                     show-total
                     style="margin-top:10px;"
@@ -156,11 +156,11 @@ export default {
         },
         pageChage (p) {
             this.page = p;
-            this.getLabs();
+            this.GetLabData();
         },
         pageSizeChange (pz) {
             this.pageSize = pz;
-            this.getLabs();
+            this.GetLabData();
         },
         removeLab (id) {
             this.$Modal.confirm({
