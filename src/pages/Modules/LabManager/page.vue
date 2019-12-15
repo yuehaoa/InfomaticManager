@@ -87,21 +87,21 @@
         </i-col>
         <i-modal v-model="modalShow" title="新建/修改机位" @on-ok="submit()" @on-cancel="cancel()">
             <i-form ref="seatForm" :model="modal" :rules="seatRules">
-                <FormItem label="机位座位号" prop="Code">
+                <i-form-item label="机位座位号" prop="Code">
                     <i-input v-model="modal.Code" />
-                </FormItem>
-                <FormItem label="机位设备信息" prop="Memo">
+                </i-form-item>
+                <i-form-item label="机位设备信息" prop="Memo">
                     <i-input v-model="modal.Memo" />
-                </FormItem>
-                <FormItem label="机位状态" prop="State">
+                </i-form-item>
+                <i-form-item label="机位状态" prop="State">
                     <i-select v-model="modal.State">
-                            <i-option
-                                v-for="(item,index) in StateType"
-                                :value="index"
-                                :key="index"
-                            >{{ item }}</i-option>
+                        <i-option
+                            v-for="(item,index) in StateType"
+                            :value="index"
+                            :key="index"
+                        >{{ item }}</i-option>
                     </i-select>
-                </FormItem>
+                </i-form-item>
             </i-form>
         </i-modal>
     </i-row>
@@ -121,7 +121,7 @@ export default {
         this.getLabData(this.labInfo.ID);
         this.getBuildingData();
         this.getSeatsData();
-        app.title = "机位安排表";
+        app.title = "实验室及机位管理";
     },
     methods: {
         getSeatsData () {
@@ -151,19 +151,6 @@ export default {
         pageSizeChange (pz) {
             this.pageSize = pz;
             this.getSeatsData();
-        },
-        addSeat (labInfo) {
-            let param = {
-                RoomId: labInfo.ID,
-                Code: 15,
-                Memo: "测试数据4",
-                State: 1
-            }
-            axios.post("/api/building/SaveSeat", param, msg => {
-                if (msg.success) {
-                    console.log(msg);
-                }
-            });
         },
         removeSeat (id) {
             this.$Modal.confirm({
@@ -235,7 +222,7 @@ export default {
                 console.log(msg);
             });
         },
-         setKeyword: _.debounce(function () {
+        setKeyword: _.debounce(function () {
             this.getSeatsData();
         }, 500)
     },
@@ -264,7 +251,7 @@ export default {
                 Code: "",
                 RoomId: "",
                 Memo: "",
-                State: -1
+                State: ""
             },
             keyword: "",
             seatNum: 0,
@@ -300,6 +287,13 @@ export default {
                     {
                         required: true,
                         message: "必须输入机房设备信息",
+                        trigger: "blur"
+                    }
+                ],
+                State: [
+                    {
+                        required: true,
+                        message: "必须选择机位状态",
                         trigger: "blur"
                     }
                 ]
@@ -402,12 +396,6 @@ export default {
             background: #fff;
             padding: 16px;
         }
-    }
-    .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab {
-        border-color: transparent;
-    }
-    .ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab-active {
-        border-color: #fff;
     }
 }
 </style>
