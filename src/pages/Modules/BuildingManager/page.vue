@@ -18,6 +18,46 @@
                     <i-button @click="toLabDetail()">添加实验室</i-button>
                     <i-button @click="downloadQRCode()">下载房间二维码</i-button>
                 </div>
+                <i-row style="margin-bottom:5px;">
+                    <i-col span="12">
+                        <i-input prefix="ios-search" :disabled= display size="large" placeholder="搜索实验室名称" v-model="keyword" @keyup.enter.native="GetLabData" />
+                    </i-col>
+                    <i-col span="5" style="padding-left:5px;">
+                        <i-button size="large" @click="switchSearchMode()" type="primary">{{display?"普通搜索":"高级搜索"}}</i-button>
+                    </i-col>
+                 </i-row>
+                 <i-row type="flex" class="filter-keywords" v-if="filters.length">
+                    <i-col span="4" class="title">
+                        <Icon type="ios-funnel" /> 检索项：
+                    </i-col>
+                </i-row>
+                <i-row v-show="display" type="flex" style="margin-bottom:5px;">
+                    <i-col span="8">
+                        实验室联系人:
+                        <i-input v-model="admin"/>
+                    </i-col>
+                    <i-col span="1"/>
+                    <i-col span="8">
+                        实验室类型：
+                        <i-input v-model="type"/>
+                    </i-col>
+                    <i-col span="24">
+                        <i-button
+                            class="ivu-btn ivu-btn-primary"
+                            style="margin-top:16px"
+                            @click="advancedSearch"
+                        >搜索</i-button>
+                        <i-button style="margin-top:16px" @click="removeAllTags()">清空</i-button>
+                    </i-col>
+                </i-row>
+                <i-row>
+                    <i-col span="22">
+                        <template v-for="(item, index) in filters">
+                            <i-tag :key="index" closable @on-close="removeTag(index)">{{item.display}}</i-tag>
+                        </template>
+                        <i-button type="text" size="small" @click="removeAllTags">清除所有</i-button>
+                    </i-col>
+                </i-row>
                 <i-table stripe :columns="columns" :data="labInfo">
                     <template slot-scope="{row}" slot="roomType">{{enums.RoomType[row.RoomType]}}</template>
                     <template slot-scope="{row}" slot="action">
@@ -63,6 +103,7 @@
 const regex = require("@/regex.js");
 let app = require("@/config");
 let enums = require("@/config/enums");
+let _ = require("lodash");
 let emptyModal = () => {
             return {
                 ID: "",
@@ -89,6 +130,44 @@ export default {
                 let final = {};
                 msg.data.map(e => (final[e.ID] = e.Name));
             });
+        },
+        removeTag (index) {
+            let item = this.filters.splice(index, 1);
+            switch (item[0].key) {
+                case "keyword":
+                    this.keyword = "";
+                    break;
+                case "admin":
+                    this.admin = "";
+                    break;
+                case "type":
+                    this.type = "";
+                    break;
+                default:
+                    break;
+            }
+            this.GetLabData();
+        },
+        removeAllTags () {
+            this.filters = [];
+            this.keyword = "";
+            this.type = "";
+            this.admin = "";
+            this.GetLabData();
+        },
+        advancedSearch () {
+            let admin = this.admin;
+            let type = this.type;
+            var typeChoice = {
+            '面向团队的开放实验室': 10,
+            '面向个人的实验室': 20,
+            '开放实验室': 1
+            }
+            this.setFilter("admin", admin, "实验室负责人", admin);
+            if (type !== "") {
+                this.setFilter("type", typeChoice[type], "实验室类型", type);
+            }
+            this.GetLabData();
         },
         renderContent (h, { root, node, data }) {
             let THIS = this;
@@ -122,9 +201,18 @@ export default {
             );
         },
         GetLabData (pid) {
-            let page = this.page;
-            let pageSize = this.pageSize;
-            axios.post("/api/building/GetRooms", { pid, page, pageSize }, msg => {
+            let params = {
+                 page: this.page,
+                 pageSize: this.pageSize,
+                 pid: pid
+            }
+            this.filters.forEach(e => {
+                if (!e.key || !e.value) {
+                    return;
+                }
+                params[e.key] = e.value;
+            });
+            axios.post("/api/building/GetRooms", params, msg => {
                 this.labInfo = msg.data;
                 this.labNum = msg.totalRow;
             });
@@ -162,6 +250,13 @@ export default {
             this.pageSize = pz;
             this.GetLabData();
         },
+        switchSearchMode () {
+            if (this.display === false) {
+            this.display = true;
+            } else {
+            this.display = false;
+        }
+      },
         removeLab (id) {
             this.$Modal.confirm({
                 title: "确认删除该实验室？",
@@ -188,8 +283,32 @@ export default {
         toLabDetail (ID) {
             this.$router.push({ name: "LabManager", query: { ID } });
         },
+       setFilter (key, value, displayKey, displayValue) {
+            let f = this.filters.findIndex(e => e.key === key);
+            if (f > -1) {
+                this.filters.splice(f, 1);
+            }
+            if (value) {
+                let ele = {
+                key: key,
+                display: `${displayKey}：${displayValue}`,
+                value: value
+                }
+                this.filters.push(ele);
+            }
+        },
+        setKeyword: _.debounce(function () {
+            let keyword = this.keyword;
+            this.setFilter("name", keyword, "实验室名称", keyword);
+            this.GetLabData();
+        }, 500),
         downloadQRCode () {
             window.open("/api/building/GetQrCodeZip");
+        }
+    },
+    watch: {
+        keyword (v) {
+            this.setKeyword();
         }
     },
     data () {
@@ -198,11 +317,17 @@ export default {
             buildingInfo: [],
             modal: emptyModal(),
             modalShow: false,
+            display: false,
             page: 1,
             pageSize: 10,
             dataName: "",
             labNum: 0,
             enums,
+            filters: [],
+            keyword: "",
+            admin: "",
+            type: "",
+            roomType: enums.RoomType,
             columns: [
                 {
                     title: "实验室名称",
