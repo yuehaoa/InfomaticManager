@@ -14,18 +14,18 @@
         <i-col span="19">
             <i-card class="panel">
                 <p slot="title">{{dataName}} 实验室列表</p>
-                <i-row style="margin-bottom:16px;margin-left:8px;">
+                <i-row style="margin-bottom: 8px;" type="flex" align="middle">
                     <i-col span="3">
                         <i-button @click="toLabDetail()" size="large" type="primary">添加实验室</i-button>
                     </i-col>
-                    <i-col span="12">
+                    <i-col span="11" offset="1">
                         <i-input prefix="ios-search" size="large" placeholder="搜索实验室名称" v-model="keyword" @keyup.enter.native="GetLabData" />
                     </i-col>
                     <i-col span="3">
                         <i-button size="large" @click="switchSearchMode()" type="text">{{display?"普通搜索":"高级搜索"}}</i-button>
                     </i-col>
-                    <i-col span="6">
-                        <i-tooltip content="下载房间二维码" placement="left" style="float:right;padding-top:6px;">
+                    <i-col span="1" offset="5">
+                        <i-tooltip content="下载房间二维码" placement="left">
                             <Icon type="ios-download-outline " size="24"  @click="downloadQRCode()"></Icon>
                         </i-tooltip>
                     </i-col>
@@ -46,26 +46,19 @@
                         >{{ item }}</i-option>
                     </i-select>
                     </i-col>
-                    <i-col span="24" style="margin-bottom:16px">
-                        <i-button
-                            class="ivu-btn ivu-btn-primary"
-                            style="margin-top:16px"
-                            @click="advancedSearch"
-                        >搜索</i-button>
-                        <i-button style="margin-top:16px" @click="removeAllTags()">清空</i-button>
+                    <i-col span="24" style="margin-top:8px">
+                        <i-button type="primary" @click="advancedSearch">搜索</i-button>
+                        <i-button  @click="removeAllTags()">清空</i-button>
                     </i-col>
                 </i-row>
-                 <i-row type="flex" class="filter-keywords" v-if="filters.length" style="margin-bottom:16px;">
-                    <i-col span="4" class="title" style="margin-bottom:8px;">
-                        <Icon type="ios-funnel" /> 检索项：
-                    </i-col>
-                    <i-col span="22">
-                        <template v-for="(item, index) in filters">
-                            <i-tag :key="index" closable @on-close="removeTag(index)">{{item.display}}</i-tag>
-                        </template>
+                <i-row type="flex" align="middle" v-if="filters.length">
+                    <i-col span="24">
+                        <i-icon type="ios-funnel" /> 检索项：
+                        <i-tag v-for="(item, index) in filters" :key="index" closable @on-close="removeTag(index)">{{item.display}}</i-tag>
                         <i-button type="text" size="small" @click="removeAllTags">清除所有</i-button>
                     </i-col>
                 </i-row>
+                <i-divider/>
                 <i-table stripe :columns="columns" :data="labInfo">
                     <template slot-scope="{row}" slot="roomType">{{enums.RoomType[row.RoomType]}}</template>
                     <template slot-scope="{row}" slot="action">
