@@ -91,7 +91,7 @@
                     <i-input v-model="modal.Code" />
                 </i-form-item>
                 <i-form-item label="机位设备信息" prop="Memo">
-                    <i-input v-model="modal.Memo" />
+                    <i-input v-model="modal.Memo" type="textarea" :rows="4" />
                 </i-form-item>
                 <i-form-item label="机位状态" prop="State">
                     <i-select v-model="modal.State">

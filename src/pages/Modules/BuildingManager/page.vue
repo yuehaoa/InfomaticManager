@@ -14,24 +14,23 @@
         <i-col span="19">
             <i-card class="panel">
                 <p slot="title">{{dataName}} 实验室列表</p>
-                <div style="margin-bottom:10px;">
-                    <i-button @click="toLabDetail()">添加实验室</i-button>
-                    <i-button @click="downloadQRCode()">下载房间二维码</i-button>
-                </div>
-                <i-row style="margin-bottom:5px;">
-                    <i-col span="12">
-                        <i-input prefix="ios-search" :disabled= display size="large" placeholder="搜索实验室名称" v-model="keyword" @keyup.enter.native="GetLabData" />
+                <i-row style="margin-bottom:16px;margin-left:8px;">
+                    <i-col span="3">
+                        <i-button @click="toLabDetail()" size="large" type="primary">添加实验室</i-button>
                     </i-col>
-                    <i-col span="5" style="padding-left:5px;">
-                        <i-button size="large" @click="switchSearchMode()" type="primary">{{display?"普通搜索":"高级搜索"}}</i-button>
+                    <i-col span="12">
+                        <i-input prefix="ios-search" size="large" placeholder="搜索实验室名称" v-model="keyword" @keyup.enter.native="GetLabData" />
+                    </i-col>
+                    <i-col span="3">
+                        <i-button size="large" @click="switchSearchMode()" type="text">{{display?"普通搜索":"高级搜索"}}</i-button>
+                    </i-col>
+                    <i-col span="6">
+                        <i-tooltip content="下载房间二维码" placement="left" style="float:right;padding-top:6px;">
+                            <Icon type="ios-download-outline " size="24"  @click="downloadQRCode()"></Icon>
+                        </i-tooltip>
                     </i-col>
                  </i-row>
-                 <i-row type="flex" class="filter-keywords" v-if="filters.length">
-                    <i-col span="4" class="title">
-                        <Icon type="ios-funnel" /> 检索项：
-                    </i-col>
-                </i-row>
-                <i-row v-show="display" type="flex" style="margin-bottom:5px;">
+                 <i-row v-show="display" type="flex" style="margin-bottom:8px;">
                     <i-col span="8">
                         实验室联系人:
                         <i-input v-model="admin"/>
@@ -39,9 +38,15 @@
                     <i-col span="1"/>
                     <i-col span="8">
                         实验室类型：
-                        <i-input v-model="type"/>
+                        <i-select v-model="type">
+                        <i-option
+                            v-for="(item,index) in roomType"
+                            :value="index"
+                            :key="index"
+                        >{{ item }}</i-option>
+                    </i-select>
                     </i-col>
-                    <i-col span="24">
+                    <i-col span="24" style="margin-bottom:16px">
                         <i-button
                             class="ivu-btn ivu-btn-primary"
                             style="margin-top:16px"
@@ -50,7 +55,10 @@
                         <i-button style="margin-top:16px" @click="removeAllTags()">清空</i-button>
                     </i-col>
                 </i-row>
-                <i-row>
+                 <i-row type="flex" class="filter-keywords" v-if="filters.length" style="margin-bottom:16px;">
+                    <i-col span="4" class="title" style="margin-bottom:8px;">
+                        <Icon type="ios-funnel" /> 检索项：
+                    </i-col>
                     <i-col span="22">
                         <template v-for="(item, index) in filters">
                             <i-tag :key="index" closable @on-close="removeTag(index)">{{item.display}}</i-tag>
@@ -158,14 +166,10 @@ export default {
         advancedSearch () {
             let admin = this.admin;
             let type = this.type;
-            var typeChoice = {
-            '面向团队的开放实验室': 10,
-            '面向个人的实验室': 20,
-            '开放实验室': 1
-            }
+            let roomType = this.roomType;
             this.setFilter("admin", admin, "实验室负责人", admin);
             if (type !== "") {
-                this.setFilter("type", typeChoice[type], "实验室类型", type);
+                this.setFilter("type", type, "实验室类型", roomType[type]);
             }
             this.GetLabData();
         },
@@ -327,6 +331,7 @@ export default {
             keyword: "",
             admin: "",
             type: "",
+            displayRemove: false,
             roomType: enums.RoomType,
             columns: [
                 {
