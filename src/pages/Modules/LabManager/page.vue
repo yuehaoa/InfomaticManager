@@ -2,9 +2,6 @@
     <i-row id="lab-manager">
         <i-col span="19">
             <i-tabs type="card" class="tab-panel">
-                <i-tab-pane label="时间安排表">
-                    <TimeTable :rid="labInfo.ID" />
-                </i-tab-pane>
                 <i-tab-pane label="机位安排表">
                     <i-row>
                          <i-col span="3">
@@ -33,6 +30,9 @@
                     show-total
                     style="margin-top:10px;"
                     />
+                </i-tab-pane>
+                <i-tab-pane label="时间安排表">
+                    <TimeTable :rid="labInfo.ID" />
                 </i-tab-pane>
             </i-tabs>
         </i-col>
@@ -91,7 +91,7 @@
                     <i-input v-model="modal.Code" />
                 </i-form-item>
                 <i-form-item label="机位设备信息" prop="Memo">
-                    <i-input v-model="modal.Memo" />
+                    <i-input v-model="modal.Memo" type="textarea" :rows="4" />
                 </i-form-item>
                 <i-form-item label="机位状态" prop="State">
                     <i-select v-model="modal.State">

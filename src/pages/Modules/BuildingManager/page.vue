@@ -14,10 +14,51 @@
         <i-col span="19">
             <i-card class="panel">
                 <p slot="title">{{dataName}} 实验室列表</p>
-                <div style="margin-bottom:10px;">
-                    <i-button @click="toLabDetail()">添加实验室</i-button>
-                    <i-button @click="downloadQRCode()">下载房间二维码</i-button>
-                </div>
+                <i-row style="margin-bottom: 8px;" type="flex" align="middle">
+                    <i-col span="3">
+                        <i-button @click="toLabDetail()" size="large" type="primary">添加实验室</i-button>
+                    </i-col>
+                    <i-col span="11" offset="1">
+                        <i-input prefix="ios-search" size="large" placeholder="搜索实验室名称" v-model="keyword" @keyup.enter.native="GetLabData" />
+                    </i-col>
+                    <i-col span="3">
+                        <i-button size="large" @click="switchSearchMode()" type="text">{{display?"普通搜索":"高级搜索"}}</i-button>
+                    </i-col>
+                    <i-col span="1" offset="5">
+                        <i-tooltip content="下载房间二维码" placement="left">
+                            <Icon type="ios-download-outline " size="24"  @click="downloadQRCode()"></Icon>
+                        </i-tooltip>
+                    </i-col>
+                 </i-row>
+                 <i-row v-show="display" type="flex" style="margin-bottom:8px;">
+                    <i-col span="8">
+                        实验室联系人:
+                        <i-input v-model="admin"/>
+                    </i-col>
+                    <i-col span="1"/>
+                    <i-col span="8">
+                        实验室类型：
+                        <i-select v-model="type">
+                        <i-option
+                            v-for="(item,index) in roomType"
+                            :value="index"
+                            :key="index"
+                        >{{ item }}</i-option>
+                    </i-select>
+                    </i-col>
+                    <i-col span="24" style="margin-top:8px">
+                        <i-button type="primary" @click="advancedSearch">搜索</i-button>
+                        <i-button  @click="removeAllTags()">清空</i-button>
+                    </i-col>
+                </i-row>
+                <i-row type="flex" align="middle" v-if="filters.length">
+                    <i-col span="24">
+                        <i-icon type="ios-funnel" /> 检索项：
+                        <i-tag v-for="(item, index) in filters" :key="index" closable @on-close="removeTag(index)">{{item.display}}</i-tag>
+                        <i-button type="text" size="small" @click="removeAllTags">清除所有</i-button>
+                    </i-col>
+                </i-row>
+                <i-divider/>
                 <i-table stripe :columns="columns" :data="labInfo">
                     <template slot-scope="{row}" slot="roomType">{{enums.RoomType[row.RoomType]}}</template>
                     <template slot-scope="{row}" slot="action">
@@ -63,6 +104,7 @@
 const regex = require("@/regex.js");
 let app = require("@/config");
 let enums = require("@/config/enums");
+let _ = require("lodash");
 let emptyModal = () => {
             return {
                 ID: "",
@@ -89,6 +131,40 @@ export default {
                 let final = {};
                 msg.data.map(e => (final[e.ID] = e.Name));
             });
+        },
+        removeTag (index) {
+            let item = this.filters.splice(index, 1);
+            switch (item[0].key) {
+                case "keyword":
+                    this.keyword = "";
+                    break;
+                case "admin":
+                    this.admin = "";
+                    break;
+                case "type":
+                    this.type = "";
+                    break;
+                default:
+                    break;
+            }
+            this.GetLabData();
+        },
+        removeAllTags () {
+            this.filters = [];
+            this.keyword = "";
+            this.type = "";
+            this.admin = "";
+            this.GetLabData();
+        },
+        advancedSearch () {
+            let admin = this.admin;
+            let type = this.type;
+            let roomType = this.roomType;
+            this.setFilter("admin", admin, "实验室负责人", admin);
+            if (type !== "") {
+                this.setFilter("type", type, "实验室类型", roomType[type]);
+            }
+            this.GetLabData();
         },
         renderContent (h, { root, node, data }) {
             let THIS = this;
@@ -122,9 +198,18 @@ export default {
             );
         },
         GetLabData (pid) {
-            let page = this.page;
-            let pageSize = this.pageSize;
-            axios.post("/api/building/GetRooms", { pid, page, pageSize }, msg => {
+            let params = {
+                 page: this.page,
+                 pageSize: this.pageSize,
+                 pid: pid
+            }
+            this.filters.forEach(e => {
+                if (!e.key || !e.value) {
+                    return;
+                }
+                params[e.key] = e.value;
+            });
+            axios.post("/api/building/GetRooms", params, msg => {
                 this.labInfo = msg.data;
                 this.labNum = msg.totalRow;
             });
@@ -162,6 +247,13 @@ export default {
             this.pageSize = pz;
             this.GetLabData();
         },
+        switchSearchMode () {
+            if (this.display === false) {
+            this.display = true;
+            } else {
+            this.display = false;
+        }
+      },
         removeLab (id) {
             this.$Modal.confirm({
                 title: "确认删除该实验室？",
@@ -188,8 +280,32 @@ export default {
         toLabDetail (ID) {
             this.$router.push({ name: "LabManager", query: { ID } });
         },
+       setFilter (key, value, displayKey, displayValue) {
+            let f = this.filters.findIndex(e => e.key === key);
+            if (f > -1) {
+                this.filters.splice(f, 1);
+            }
+            if (value) {
+                let ele = {
+                key: key,
+                display: `${displayKey}：${displayValue}`,
+                value: value
+                }
+                this.filters.push(ele);
+            }
+        },
+        setKeyword: _.debounce(function () {
+            let keyword = this.keyword;
+            this.setFilter("name", keyword, "实验室名称", keyword);
+            this.GetLabData();
+        }, 500),
         downloadQRCode () {
             window.open("/api/building/GetQrCodeZip");
+        }
+    },
+    watch: {
+        keyword (v) {
+            this.setKeyword();
         }
     },
     data () {
@@ -198,11 +314,18 @@ export default {
             buildingInfo: [],
             modal: emptyModal(),
             modalShow: false,
+            display: false,
             page: 1,
             pageSize: 10,
             dataName: "",
             labNum: 0,
             enums,
+            filters: [],
+            keyword: "",
+            admin: "",
+            type: "",
+            displayRemove: false,
+            roomType: enums.RoomType,
             columns: [
                 {
                     title: "实验室名称",
