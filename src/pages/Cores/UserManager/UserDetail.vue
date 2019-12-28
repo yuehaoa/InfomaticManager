@@ -31,7 +31,7 @@
                 <Input v-model="model.RealName" placeholder="请输入姓名" />
             </FormItem>
             <FormItem label="排序号" prop="Currency">
-                <Input v-model="model.Currency" placeholder="请输入排序号" />
+                <Input v-model="model.DisplayOrder" placeholder="请输入排序号" />
                 <div class="help-block">
                    排序号以<b class="text-info">降序</b>排列
                 </div>
