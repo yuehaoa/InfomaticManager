@@ -60,6 +60,9 @@
                 </i-row>
                 <i-divider/>
                 <i-table stripe :columns="columns" :data="labInfo">
+                    <template slot-scope="{row}" slot="Name">{{row.Name}}</template>
+                    <template slot-scope="{row}" slot="Location"><p>{{final[row.BuildingId]}}--{{row.RoomCode}}</p></template>
+                    <template slot-scope="{row}" slot="Administrator">{{row.Administrator}}<p>({{row.SOTelephone}})</P></template>
                     <template slot-scope="{row}" slot="roomType">{{enums.RoomType[row.RoomType]}}</template>
                     <template slot-scope="{row}" slot="action">
                         <a class="btn" href="javascript:;" @click="toLabDetail(row.ID)">[详情]</a>
@@ -128,8 +131,9 @@ export default {
         GetBuildingData () {
             axios.post("/api/building/GetBuildings", {}, msg => {
                 this.buildingInfo = msg.data;
-                let final = {};
+                let final = [];
                 msg.data.map(e => (final[e.ID] = e.Name));
+                this.final = final;
             });
         },
         removeTag (index) {
@@ -309,6 +313,16 @@ export default {
         }
     },
     data () {
+         let labState = [];
+        for (let index in enums.RoomType) {
+            let item = enums.RoomType[index]
+            labState.push({
+                value: index,
+                key: index,
+                label: item
+            });
+        }
+        let THIS = this;
         return {
             labInfo: [],
             buildingInfo: [],
@@ -324,32 +338,45 @@ export default {
             keyword: "",
             admin: "",
             type: "",
+            final: [],
+            labState: enums.RoomType,
             displayRemove: false,
             roomType: enums.RoomType,
             columns: [
                 {
                     title: "实验室名称",
-                    key: "Name"
+                    slot: "Name"
+                },
+                {
+                    title: "地点",
+                    slot: "Location"
                 },
                 {
                     title: "实验室联系人",
-                    key: "Administrator"
-                },
-                {
-                    title: "联系人电话",
-                    key: "AdminTelephone"
-                },
-                {
-                    title: "安全负责人",
-                    key: "SecurityOfficer"
-                },
-                {
-                    title: "安全负责人电话",
-                    key: "SOTelephone"
+                    slot: "Administrator"
                 },
                 {
                     title: "实验室类型",
-                    slot: "roomType"
+                    slot: "roomType",
+                    filters: labState,
+                    filterMultiple: false,
+                    filterRemote (value, key, label) {
+                        let v = value[0];
+                        let f = THIS.filters.findIndex(e => e.key === "type");
+                        if (f > -1) {
+                            THIS.filters.splice(f, 1)
+                        }
+                        if (v) {
+                            let ele = {
+                                key: "type",
+                                display: `实验室类型：${enums.RoomType[v]}`,
+                                value: v
+                                }
+                                THIS.filters.push(ele);
+                                THIS.GetLabData();
+                        }
+                    }
+
                 },
                 {
                     title: "操作",
