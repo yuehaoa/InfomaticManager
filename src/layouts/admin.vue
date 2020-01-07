@@ -75,11 +75,12 @@
 <script>
 import { Layout, Sider, Menu, MenuItem, Header, Icon, Content, Affix, Submenu } from 'view-design'
 import Axios from 'axios';
+let signalR = require("@/api/signalR").default;
 const app = require('@/config')
 export default {
+    name: "admin-layout",
     components: { Layout, Sider, Menu, MenuItem, Header, Icon, Content, Affix, Submenu },
     created () {
-        let signalR = require("@/api/signalR").default;
         signalR.ready(msg => {
             signalR.resetUserId(app.userInfo.token);
             window._console.log(`登录成功！已向服务器更新登录信息`);
@@ -136,11 +137,11 @@ export default {
         logout () {
             Axios.post("/api/security/logout", {currentUserGuid: app.currentUserGuid}, msg => {
                 if (msg.success === true) {
-                    this.$Message.success("登出成功");
+                    // this.$Message.success("登出成功");
                 } else {
                     this.$Message.warning("登出失败");
                 }
-                this.$router.push({ name: "Login" });
+                // this.$router.push({ name: "Login" });
             })
         }
     },

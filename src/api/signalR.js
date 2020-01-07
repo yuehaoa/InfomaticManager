@@ -3038,9 +3038,10 @@ function buildSignalR ($, window) {
             generateWechatQr: function () {
                 return proxies['ricebirdHub'].invoke.apply(proxies['ricebirdHub'], $.merge(["GenerateWechatQr"], $.makeArray(arguments)));
             },
-            resetUserId: function () {
+
+            resetUserId: function (id) {
                 return proxies['ricebirdHub'].invoke.apply(proxies['ricebirdHub'], $.merge(["ResetUserId"], $.makeArray(arguments)));
-             }
+            }
         };
 
         return proxies;
@@ -3062,6 +3063,9 @@ signalR = {
     resetUserId (currentUserGuid) {
         let reset = hub.server.resetUserId;
         reset(currentUserGuid);
+    },
+    lagCaculation (time) {
+        hub.server.lagCaculation(time);
     }
 };
 function connector (resolve, reject) {
