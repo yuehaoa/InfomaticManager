@@ -97,6 +97,7 @@ var _ = require("lodash")
 const app = require("@/config")
 const axios = require("axios");
 export default {
+    name: "um",
     components: { OrgSelector, UserDetail },
     methods: {
         unbind (id, openId) {

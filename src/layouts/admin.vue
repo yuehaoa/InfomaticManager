@@ -81,7 +81,8 @@ export default {
     created () {
         let signalR = require("@/api/signalR").default;
         signalR.ready(msg => {
-            signalR.resetUserId();
+            signalR.resetUserId(app.userInfo.token);
+            window._console.log(`登录成功！已向服务器更新登录信息`);
         })
     },
     mounted () {

@@ -1736,7 +1736,8 @@ let $ = require("jquery");
                 if (connection.webSocketServerUrl) {
                     url = connection.webSocketServerUrl;
                 } else {
-                    url = connection.wsProtocol + connection.host;
+                    let host = connection.host;
+                    url = connection.wsProtocol + host;
                 }
 
                 url += transportLogic.getUrl(connection, this.name, reconnecting);
@@ -3058,7 +3059,10 @@ let signalR = {};
 signalR = {
     connectionId: "",
     isConnected: false,
-    resetUserId: hub.server.resetUserId
+    resetUserId (currentUserGuid) {
+        let reset = hub.server.resetUserId;
+        reset(currentUserGuid);
+    }
 };
 function connector (resolve, reject) {
     $.connection.hub.logging = true;
@@ -3075,7 +3079,7 @@ function connector (resolve, reject) {
     
     hub.client.recieve = function (text) {
         var json = text;
-        recieve && recieve.apply(mixin.app, [null, json.func, json.data]);
+        recieve && recieve.apply(mixin.app, [json.component, json.func, json.data]);
     }
     
     $.connection.hub.start().done(function () {})
