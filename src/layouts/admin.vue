@@ -1,27 +1,25 @@
 <template>
     <Layout class="main-layer">
         <Sider ref="side1" hide-trigger collapsible :collapsed-width="78" v-model="isCollapsed">
-            <Affix>
-                <div class="logo"></div>
-                <Menu ref="menu" theme="dark" width="auto" :class="menuitemClasses" :open-names="openMenus.map(e => e.ActionName || e.Text)" :active-name="activeMenu">
-                    <template v-for="(item, index) in menus">
-                        <i-menu-item v-if="item.Items && !item.Items.length" :key="index" :to="{ name: item.ActionName }" :name="item.ActionName || item.Text">
-                            <i :class="{fa: true, [item.Icons]: true}" :key="'i' + index"/>
-                            <span :key="'span' + index">{{ item.Text }}</span>
+            <div class="logo"></div>
+            <Menu ref="menu" theme="dark" id="main-menu" width="auto" :class="menuitemClasses" :open-names="openMenus.map(e => e.ActionName || e.Text)" :active-name="activeMenu">
+                <template v-for="(item, index) in menus">
+                    <i-menu-item v-if="item.Items && !item.Items.length" :key="index" :to="{ name: item.ActionName }" :name="item.ActionName || item.Text">
+                        <i :class="{fa: true, [item.Icons]: true}" :key="'i' + index"/>
+                        <span :key="'span' + index">{{ item.Text }}</span>
+                    </i-menu-item>
+                    <Submenu v-if="item.Items && item.Items.length" :key="index" :name="item.Text">
+                        <template slot="title">
+                            <i :class="{fa: true, [item.Icons]: true}"/>
+                            <span>{{ item.Text }}</span>
+                        </template>
+                        <i-menu-item v-for="(v, k) in item.Items" :key="k" :to="{ name: v.ActionName }" :name="v.ActionName || v.Text">
+                            <!-- <i :class="{fa: true, [v.Icons]: true}"/> -->
+                            <span>{{ v.Text }}</span>
                         </i-menu-item>
-                        <Submenu v-if="item.Items && item.Items.length" :key="index" :name="item.Text">
-                            <template slot="title">
-                                <i :class="{fa: true, [item.Icons]: true}"/>
-                                <span>{{ item.Text }}</span>
-                            </template>
-                            <i-menu-item v-for="(v, k) in item.Items" :key="k" :to="{ name: v.ActionName }" :name="v.ActionName || v.Text">
-                                <!-- <i :class="{fa: true, [v.Icons]: true}"/> -->
-                                <span>{{ v.Text }}</span>
-                            </i-menu-item>
-                        </Submenu>
-                    </template>
-                </Menu>
-            </Affix>
+                    </Submenu>
+                </template>
+            </Menu>
         </Sider>
         <Layout>
             <Affix>
@@ -75,13 +73,15 @@
 <script>
 import { Layout, Sider, Menu, MenuItem, Header, Icon, Content, Affix, Submenu } from 'view-design'
 import Axios from 'axios';
+let signalR = require("@/api/signalR").default;
 const app = require('@/config')
 export default {
+    name: "admin-layout",
     components: { Layout, Sider, Menu, MenuItem, Header, Icon, Content, Affix, Submenu },
     created () {
-        let signalR = require("@/api/signalR").default;
         signalR.ready(msg => {
-            signalR.resetUserId();
+            signalR.resetUserId(app.userInfo.token);
+            window._console.log(`登录成功！已向服务器更新登录信息`);
         })
     },
     mounted () {
@@ -135,11 +135,11 @@ export default {
         logout () {
             Axios.post("/api/security/logout", {currentUserGuid: app.currentUserGuid}, msg => {
                 if (msg.success === true) {
-                    this.$Message.success("登出成功");
+                    // this.$Message.success("登出成功");
                 } else {
                     this.$Message.warning("登出失败");
                 }
-                this.$router.push({ name: "Login" });
+                // this.$router.push({ name: "Login" });
             })
         }
     },
@@ -168,6 +168,7 @@ export default {
         menuitemClasses () {
             return [
                 'menu-item',
+                'i-scrollbar-hide',
                 this.isCollapsed ? 'collapsed-menu' : ''
             ]
         }
@@ -234,5 +235,9 @@ export default {
 }
 .main-layer {
     min-height: fill-available;
+}
+#main-menu {
+    height: calc(~'100vh - 64px');
+    overflow-y: auto;
 }
 </style>

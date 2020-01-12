@@ -48,7 +48,7 @@ var axios = require("axios");
 export default {
     methods: {
         getData (reload) {
-            let page = this.page;
+            let page = reload ? 1 : this.page;
             let pageSize = this.pageSize;
             let keyword = this.category;
             let dic = axios._post("/api/config/GetDataDictionary")
