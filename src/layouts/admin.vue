@@ -1,27 +1,25 @@
 <template>
     <Layout class="main-layer">
         <Sider ref="side1" hide-trigger collapsible :collapsed-width="78" v-model="isCollapsed">
-            <Affix>
-                <div class="logo"></div>
-                <Menu ref="menu" theme="dark" width="auto" :class="menuitemClasses" :open-names="openMenus.map(e => e.ActionName || e.Text)" :active-name="activeMenu">
-                    <template v-for="(item, index) in menus">
-                        <i-menu-item v-if="item.Items && !item.Items.length" :key="index" :to="{ name: item.ActionName }" :name="item.ActionName || item.Text">
-                            <i :class="{fa: true, [item.Icons]: true}" :key="'i' + index"/>
-                            <span :key="'span' + index">{{ item.Text }}</span>
+            <div class="logo"></div>
+            <Menu ref="menu" theme="dark" id="main-menu" width="auto" :class="menuitemClasses" :open-names="openMenus.map(e => e.ActionName || e.Text)" :active-name="activeMenu">
+                <template v-for="(item, index) in menus">
+                    <i-menu-item v-if="item.Items && !item.Items.length" :key="index" :to="{ name: item.ActionName }" :name="item.ActionName || item.Text">
+                        <i :class="{fa: true, [item.Icons]: true}" :key="'i' + index"/>
+                        <span :key="'span' + index">{{ item.Text }}</span>
+                    </i-menu-item>
+                    <Submenu v-if="item.Items && item.Items.length" :key="index" :name="item.Text">
+                        <template slot="title">
+                            <i :class="{fa: true, [item.Icons]: true}"/>
+                            <span>{{ item.Text }}</span>
+                        </template>
+                        <i-menu-item v-for="(v, k) in item.Items" :key="k" :to="{ name: v.ActionName }" :name="v.ActionName || v.Text">
+                            <!-- <i :class="{fa: true, [v.Icons]: true}"/> -->
+                            <span>{{ v.Text }}</span>
                         </i-menu-item>
-                        <Submenu v-if="item.Items && item.Items.length" :key="index" :name="item.Text">
-                            <template slot="title">
-                                <i :class="{fa: true, [item.Icons]: true}"/>
-                                <span>{{ item.Text }}</span>
-                            </template>
-                            <i-menu-item v-for="(v, k) in item.Items" :key="k" :to="{ name: v.ActionName }" :name="v.ActionName || v.Text">
-                                <!-- <i :class="{fa: true, [v.Icons]: true}"/> -->
-                                <span>{{ v.Text }}</span>
-                            </i-menu-item>
-                        </Submenu>
-                    </template>
-                </Menu>
-            </Affix>
+                    </Submenu>
+                </template>
+            </Menu>
         </Sider>
         <Layout>
             <Affix>
@@ -170,6 +168,7 @@ export default {
         menuitemClasses () {
             return [
                 'menu-item',
+                'i-scrollbar-hide',
                 this.isCollapsed ? 'collapsed-menu' : ''
             ]
         }
@@ -236,5 +235,9 @@ export default {
 }
 .main-layer {
     min-height: fill-available;
+}
+#main-menu {
+    height: calc(~'100vh - 64px');
+    overflow-y: auto;
 }
 </style>
