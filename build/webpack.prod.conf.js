@@ -3,6 +3,7 @@ const path = require('path')
 const utils = require('./utils')
 const webpack = require('webpack')
 const config = require('../config')
+const fs = require("fs");
 const merge = require('webpack-merge')
 const baseWebpackConfig = require('./webpack.base.conf')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
@@ -10,6 +11,33 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+
+function rmdir(filePath, callback) {
+  callback = callback || function () {};
+  // 先判断当前filePath的类型(文件还是文件夹,如果是文件直接删除, 如果是文件夹, 去取当前文件夹下的内容, 拿到每一个递归)
+  fs.stat(filePath, function(err, stat) {
+    if(err) return console.log(err)
+    if(stat.isFile()) {
+      fs.unlink(filePath, callback)
+    }else {
+      fs.readdir(filePath, function(err, data) {
+        if(err) return console.log(err)
+        let dirs = data.map(dir => path.join(filePath, dir))
+        let index = 0
+        !(function next() {
+          // 此处递归删除掉所有子文件 后删除当前 文件夹
+          if(index === dirs.length) {
+            fs.rmdir(filePath, callback)
+          }else {
+            rmdir(dirs[index++],next)
+          }
+        })()
+      })
+    }
+  })
+}
+
+rmdir('./dist');
 
 const env = process.env.NODE_ENV === 'testing'
   ? require('../config/test.env')
@@ -38,7 +66,8 @@ const webpackConfig = merge(baseWebpackConfig, {
     new UglifyJsPlugin({
       uglifyOptions: {
         compress: {
-          warnings: false
+          warnings: false,
+          drop_console: true
         }
       },
       sourceMap: config.build.productionSourceMap,
