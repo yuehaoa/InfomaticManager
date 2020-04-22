@@ -1,14 +1,14 @@
 <template>
     <i-row id="building-manager" :gutter="16">
         <i-col span="5" class="tree">
-            <div class="user-search">
+            <i-row class="user-search">
                 <i-input prefix="ios-search" placeholder="搜索楼栋" />
                 <div class="more-btn" @click="modifyBuilding()">
                     <i-tooltip content="添加部门" placement="right">
                         <Icon type="md-add" />
                     </i-tooltip>
                 </div>
-            </div>
+            </i-row>
             <Tree :data="buildingInfo" class="org-tree" :render="renderContent"></Tree>
         </i-col>
         <i-col span="19">
@@ -175,7 +175,10 @@ export default {
             return h(
                 "span",
                 {
-                    class: { "ivu-tree-title": true },
+                    style: {
+                        display: 'inline-block',
+                        width: '100%'
+                    },
                     on: {
                         click () {
                             THIS.GetLabData(data.ID);
@@ -185,7 +188,7 @@ export default {
                 [
                     h(
                         "span",
-                        { style: { marginRight: "8px" } },
+                        { style: {} },
                         data.Name
                     ),
                     h("Icon", {
@@ -371,9 +374,9 @@ export default {
                                 key: "type",
                                 display: `实验室类型：${enums.RoomType[v]}`,
                                 value: v
-                                }
-                                THIS.filters.push(ele);
-                                THIS.GetLabData();
+                            };
+                            THIS.filters.push(ele);
+                            THIS.GetLabData();
                         }
                     }
 
@@ -432,12 +435,11 @@ export default {
         width: 220px;
     }
     .more-btn {
-        padding-left: 3px;
         position: absolute;
         right: 0px;
-        top: 13px;
-        width: 20px;
-        height: 20px;
+        top: 10px;
+        width: 24px;
+        height: 24px;
         cursor: pointer;
     }
 }
