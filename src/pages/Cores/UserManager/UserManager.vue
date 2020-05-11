@@ -97,6 +97,7 @@ var _ = require("lodash")
 const app = require("@/config")
 const axios = require("axios");
 export default {
+    name: "um",
     components: { OrgSelector, UserDetail },
     methods: {
         unbind (id, openId) {
@@ -121,8 +122,9 @@ export default {
         },
         renderOrgTree (h, {root, node, data}) {
             let THIS = this;
+            let dptName = data.name === "无部门" ? "所有部门" : data.name;
             return h('span', {
-                class: { "ivu-tree-title": true, "ivu-tree-title-selected": data.selected },
+                class: { "ivu-tree-title-span": true, "ivu-tree-title-selected": data.selected },
                 on: {
                     click () {
                         root.map(e => e.node.selected = false);
@@ -134,7 +136,7 @@ export default {
                     }
                 }
             }, [
-                h("span", [
+                h("span", { class: { "ivu-tree-title-text": true }, title: dptName }, [
                     h("Icon", { props: { type: data.isDepart ? 'md-folder' : 'ios-person' }, style: { marginRight: "8px" } }),
                     h("span", data.name === "无部门" ? "所有部门" : data.name)
                 ]),

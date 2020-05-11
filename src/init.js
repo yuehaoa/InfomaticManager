@@ -7,9 +7,11 @@ if (!appSettings.isInit) {
 
     var get = axios.get;
     var post = axios.post;
+    var console = window.console;
 
     axios._get = get;
     axios._post = post;
+    window._console = console;
 
     axios.get = (url, params, callback) => {
         var result = get(appSettings.api + url, {
@@ -73,6 +75,30 @@ if (!appSettings.isInit) {
             })
         } else {
             return result;
+        }
+    }
+
+    window.console = {
+        debug (...params) {
+            if (appSettings.debug) {
+                console.debug.apply(null, params);
+            }
+        },
+        verbo (...params) {
+            if (appSettings.debug) {
+                console.verbo.apply(null, params);
+            }
+        },
+        log (...params) {
+            if (appSettings.debug) {
+                console.log.apply(null, params);
+            }
+        },
+        warn (...params) {
+            console.warn.apply(null, params);
+        },
+        error (...params) {
+            console.error.apply(null, params);
         }
     }
 

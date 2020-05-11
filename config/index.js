@@ -16,8 +16,9 @@ module.exports = {
         changeOrigin: true
       },
       "/signalr": {
-        target: "http://item.ricebird.cn", //"http://localhost:2034", //
-        changeOrigin: true
+        target: "ws://item.ricebird.cn", //"ws://localhost:2034", //
+        changeOrigin: true,
+        ws: true
       }
     },
 

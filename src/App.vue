@@ -10,13 +10,29 @@
 // const axios = require("axios");
 const app = require("@/config");
 export default {
-    name: 'App',
-    created () {
-        this.$on("connected", connId => {
-            console.log(connId);
-        })
-    },
+    name: 'app',
+    // created () {
+    //     this.$on("connected", connId => {
+    //         console.log(connId);
+    //     })
+    // },
     methods: {
+        connected (connId) {
+            window._console.log(`已成功连接服务器 -> ${connId}`);
+        },
+        debugCMsg (msg) {
+            window._console.log(`成功接收服务器下发的测试信息：${msg}`);
+        },
+        showAlert (msg) {
+            alert(msg);
+        },
+        connectMsg (msg) {
+            window._console.log(msg);
+        },
+        kickUser (msg) {
+            this.$Message.info(msg);
+            this.$router.push({ name: "Login" });
+        },
         setTitle () {
             document.title = app.title + app.titlePerfix;
         },

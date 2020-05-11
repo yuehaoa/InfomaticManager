@@ -48,6 +48,31 @@ a.disabled {
     color: #c5c8ce;
 }
 
+.i-scrollbar-hide::-webkit-scrollbar {
+	width: 0
+}
+
+.i-scrollbar-hide::-webkit-scrollbar-track {
+	background-color: transparent
+}
+
+.i-scrollbar-hide::-webkit-scrollbar-thumb {
+	background: #e8eaec
+}
+
+.i-scrollbar::-webkit-scrollbar {
+	width: 6px
+}
+
+.i-scrollbar::-webkit-scrollbar-track {
+	background-color: transparent
+}
+
+.i-scrollbar::-webkit-scrollbar-thumb {
+	background: #808695;
+	border-radius: 4px
+}
+
 @0px: 0px;
 .margin-loop(@list, @direction, @class, @i: 1, @val: extract(@list, @i)) when (length(@list)>=@i) {
   .@{class}@{val} {

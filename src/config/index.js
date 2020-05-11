@@ -1,5 +1,5 @@
 let appSetting = {
-    debug: true,
+    debug: process.env.NODE_ENV !== "production",
     api: "",
     currentUserGuid: "",
     titlePerfix: " - ",

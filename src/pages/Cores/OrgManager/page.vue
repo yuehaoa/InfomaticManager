@@ -23,6 +23,12 @@
             <i-form-item label="上级部门" prop="ParentId">
                 <org-selector v-model="model.ParentId" :multiple="false" :withOut="id" />
             </i-form-item>
+            <i-form-item label="排序号" prop="Sort">
+                <i-input v-model="model.Sort" type="number" />
+                <div class="help-block">
+                   排序号以<b class="text-info">降序</b>排列
+                </div>
+            </i-form-item>
         </Form>
         <i-divider />
         <div class="header" v-if="isSaved">

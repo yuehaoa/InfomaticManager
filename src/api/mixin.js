@@ -2,11 +2,21 @@ var _ = require("lodash")
 var axios = require("axios");
 let app = {};
 function broadcast (componentName, eventName, params) {
+    if (!this.$children || this.$children.forEach) {
+        return;
+    }
+
     this.$children.forEach(child => {
         const name = child.$options.name;
         if (name === componentName) {
+            if (typeof child[eventName] === "function") {
+                child[eventName].apply(child, params);
+            }
             child.$emit.apply(child, [eventName].concat(params));
         } else if (!componentName) {
+            if (typeof child[eventName] === "function") {
+                child[eventName].apply(child, params);
+            }
             child.$emit.apply(child, [eventName].concat(params));
             broadcast.apply(child, [componentName, eventName].concat([params]));
         } else {

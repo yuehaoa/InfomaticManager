@@ -30,6 +30,12 @@
             <FormItem label="姓名" prop="RealName">
                 <Input v-model="model.RealName" placeholder="请输入姓名" />
             </FormItem>
+            <FormItem label="排序号" prop="Currency">
+                <Input v-model="model.DisplayOrder" placeholder="请输入排序号" />
+                <div class="help-block">
+                   排序号以<b class="text-info">降序</b>排列
+                </div>
+            </FormItem>
             <FormItem label="所属部门" v-if="permissions.giveDepart">
                 <OrgSelector v-model="model.departs" :multiple="true" />
             </FormItem>
@@ -155,7 +161,11 @@ export default {
                        })
                    }, 500)
                ],
-               "RealName": {required: true, message: "必须输入姓名", trigger: "blur"}
+               "RealName": {required: true, message: "必须输入姓名", trigger: "blur"},
+               "Currency": [
+                   {required: false, message: "必须输入排序号", trigger: "blur"},
+                   {type: "string", pattern: "\\d+", message: "排序号格式不正确", trigger: "blur"}
+               ]
             }
         };
     },

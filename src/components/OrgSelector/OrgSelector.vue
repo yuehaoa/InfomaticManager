@@ -67,7 +67,7 @@ export default {
             data.name = data.name === "无部门" ? "根部门" : data.name
 
             return h('span', {
-                class: { "ivu-tree-title": true, "ivu-tree-title-selected": data.selected },
+                class: { "ivu-tree-title-text": true, "ivu-tree-title-selected": data.selected },
                 on: {
                     click () {
                         if (!THIS.multiple) {
