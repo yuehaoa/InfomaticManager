@@ -81,19 +81,18 @@ export default {
                 this.getData();
             })
         },
+        addSingleRole () {
+            axios.post("/api/security/SaveRole", { role: this.newRole }, msg => {
+                if (msg.success) {
+                    this.$Message.success(msg.msg);
+                } else {
+                    this.$Message.warning(msg.msg);
+                }
+                this.getData();
+            })
+        },
         addRole () {
-            let onOK = () => {
-                axios.post("/api/security/SaveRole", { role: this.newRole }, msg => {
-                    if (msg.success) {
-                        this.$Message.success(msg.msg);
-                    } else {
-                        this.$Message.warning(msg.msg);
-                    }
-                    this.getData();
-                    this.$Modal.remove();
-                })
-            };
-
+            debugger
             this.$Modal.confirm({
                 render: (h) => {
                     return h('Input', {
@@ -102,22 +101,20 @@ export default {
                             autofocus: true,
                             placeholder: '请输入角色名'
                         },
-                        loading: true,
                         on: {
                             input: (val) => {
                                 this.newRole = val;
                             },
                             "on-keyup" (event) {
                                 if (event.keyCode === 13) {
-                                    onOK();
+                                   this.addSingleRole();
                                 }
                             }
-                        },
-                        onOK () {
-                            onOK();
                         }
                     })
-                }
+                },
+                onOk: this.addSingleRole(),
+                loading: true
             })
         }
     },
