@@ -2,7 +2,7 @@
   "name": "infomation-depart",
   "version": "1.0.0",
   "description": "信息学院管理系统后台",
-  "author": "厦门米雀软件科技有限公司",
+  "author": "项目制作组",
   "private": false,
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",

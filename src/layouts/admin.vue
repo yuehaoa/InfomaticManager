@@ -65,7 +65,7 @@
             <Content :style="{margin: '20px'}" class="content">
                 <slot></slot>
             </Content>
-            <Footer class="layout-footer-center">&copy; 2019 <a href="http://www.ricebird.cn">厦门米雀软件科技有限公司</a> 版权所有</Footer>
+            <!--Footer class="layout-footer-center">&copy; 2019 <a href="http://www.ricebird.cn">厦门米雀软件科技有限公司</a> 版权所有</Footer-->
         </Layout>
     </Layout>
 </template>
